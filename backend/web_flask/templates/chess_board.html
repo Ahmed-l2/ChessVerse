@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chess Board</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/chess_board.css') }}">
+</head>
+<body>
+    <h1>Chess Board</h1>
+    <div class="chess-board"></div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{{ url_for('static', filename='scripts/chess_board.js') }}"></script>
+</body>
+</html>
