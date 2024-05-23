@@ -1,7 +1,7 @@
 body {
   height: 100%;
   padding: 10px;
-  background-color: rgb(0, 0, 0);
+  background-color: rgb(255, 255, 255);
 }
 
 .chess-board {
@@ -22,6 +22,7 @@ body {
 }
 
 .square {
+  position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -65,7 +66,7 @@ body {
 }
 
 .piece {
-  width: 50px;
+  width: 55px;
 }
 
 .selected-square {
@@ -79,6 +80,18 @@ body {
   background-color: #bbb;
   border-radius: 50%;
   z-index: 100;
+}
+
+.move-indicator {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background-color: rgba(0, 255, 0, 0.5);
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
 }
 
 .king-in-check {
