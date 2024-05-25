@@ -20,6 +20,27 @@ const pieceImages = { p, P, r, R, n, N, b, B, q, Q, k, K };
 const letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 const numbers = ['8', '7', '6', '5', '4', '3', '2', '1'];
 
+const compareStr = (str1, str2) =>{
+  let map = {};
+  for(let char of str2) {
+      if(!map[char]) {
+          map[char] = 1;
+      } else {
+          map[char]++;
+      }
+  }
+
+  for(let char of str1) {
+      if(!map[char]) {
+          return false;
+      } else {
+          map[char]--;
+      }
+  }
+
+  return true;
+};
+
 const ChessGame = () => {
   const [board, setBoard] = useState([]);
   const [legalMoves, setLegalMoves] = useState([]);
@@ -27,7 +48,10 @@ const ChessGame = () => {
   const [turn, setTurn] = useState('');
   const [selectedSquare, setSelectedSquare] = useState(null);
   const [squareMoves, setSquareMoves] = useState([]);
-  const [currentPiece, setCurrentPiece] = useState('')
+  const [currentPiece, setCurrentPiece] = useState('');
+  const [promotion, setPromotion] = useState(null);
+  const [promotionSquare, setPromotionSquare] = useState(null);
+
 
   useEffect(() => {
     fetchBoard();
@@ -81,16 +105,45 @@ const ChessGame = () => {
   const handlePieceMove = async (row, col) => {
     try {
       const square = convertToSAN(row, col);
-      console.log(currentPiece);
-      let move = ''
-      console.log(square)
-      if (currentPiece !== 'P' && currentPiece !== 'p') {
-        move = currentPiece.toUpperCase() + square;
-      } else {
-        move = square;
+      let move = '';
+      console.log(`Trying to move ${currentPiece} to ${square} (${row}, ${col})`);
+      console.log(`Row: ${row}, CurrentPiece: ${currentPiece}`);
+      if ((currentPiece === 'P' && row === 0) || (currentPiece === 'p' && row === 7)) {
+        console.log('Pawn promotion condition met');
+        setPromotionSquare({ row, col });
+        setPromotion({ piece: currentPiece, square });
+        return; // Stop further execution to wait for promotion choice
       }
-      console.log(move);
-      console.log(typeof move);
+
+      if (currentPiece !== 'P' && currentPiece !== 'p') {
+        let temp = currentPiece.toUpperCase() + square;
+        for (let j = 0; j < legalMoves.length; j++) {
+          if (compareStr(temp, legalMoves[j])) {
+            move = legalMoves[j];
+          }
+        }
+      } else {
+        for (let x = 0; x < legalMoves.length; x++) {
+          if (compareStr(square, legalMoves[x])) {
+            move = legalMoves[x];
+          };
+        };
+      };
+
+      if ((currentPiece === 'P' && row === 7) || (currentPiece === 'p' && row === 0)) {
+        
+      }
+  
+      // Check if the move is a castling move
+      if ((currentPiece === 'k' || currentPiece === 'K') && (square === 'h1' || square === 'a1' || square === 'h8' || square === 'a8')) {
+        if ((square === 'h1' || square === 'h8') && legalMoves.includes('O-O')) {
+          move = 'O-O';
+        }
+        if ((square === 'a1' || square === 'a8') && legalMoves.includes('O-O-O')) {
+          move = 'O-O-O';
+        }
+      }
+  
       const response = await axios.post('http://localhost:5000/move', { move });
       if (response.data.error) {
         setError(response.data.error);
@@ -105,6 +158,31 @@ const ChessGame = () => {
       setError('Invalid move');
     }
   };
+
+  const handlePromotionChoice = async (choice) => {
+    if (promotion) {
+      const { piece, square } = promotion;
+      const move = square + choice;
+  
+      try {
+        const response = await axios.post('http://localhost:5000/move', { move });
+        if (response.data.error) {
+          setError(response.data.error);
+        } else {
+          setBoard(convertFenToBoard(response.data.board));
+          setLegalMoves(response.data.legal_moves);
+          setTurn(response.data.turn);
+          setError('');
+          setPromotion(null); // Clear promotion state
+          setPromotionSquare(null);
+        }
+      } catch (error) {
+        console.error('Error making move:', error);
+        setError('Invalid move');
+      }
+    }
+  };
+  
 
   const handleReset = async () => {
     try {
@@ -161,6 +239,8 @@ const ChessGame = () => {
     if (selectedSquare && selectedSquare.row === row && selectedSquare.col === col) {
       setSelectedSquare(null);
       setSquareMoves([]);
+      setCurrentPiece(''); // Clear the currentPiece state
+      setPromotion(null);
     } else if (pieceColor === turn) {
       const square = convertToSAN(row, col);
       console.log(`Selected Square: ${square}`); // Debugging line
@@ -169,6 +249,7 @@ const ChessGame = () => {
       setCurrentPiece(piece);
     }
   };
+  
 
   const isSquareSelected = (row, col) => {
     return selectedSquare && selectedSquare.row === row && selectedSquare.col === col;
@@ -176,33 +257,49 @@ const ChessGame = () => {
 
   const isMoveSquare = (row, col) => {
     const square = convertToSAN(row, col);
+    if (currentPiece === 'k' && (square === 'h8' || square === 'a8')) {
+      if (square === 'h8' && legalMoves.includes('O-O')) {
+        return true;
+      }
+      if (square === 'a8' && legalMoves.includes('O-O-O')) {
+        return true;
+      }
+    } else if (currentPiece === 'K' && (square === 'h1' || square === 'a1')) {
+      if (square === 'h1' && legalMoves.includes('O-O')) {
+        return true;
+      }
+      if (square === 'a1' && legalMoves.includes('O-O-O')) {
+        return true;
+      }
+    }
     for (let i = 0; i < squareMoves.length; i++) {
       if (squareMoves[i].includes(square)) {
-          return true;
+        return true;
       }
     };
     return false;
   };
-
+  
+  
   return (
     <div>
       <h1>Chess Board</h1>
       {error && <p style={{ color: 'red' }}>{error}</p>}
       <div className="chess-board">
-        {board.map((row, rowIndex) => (
+        {board.slice().reverse().map((row, rowIndex) => (
           <div key={rowIndex} className="row">
             {row.map((piece, colIndex) => (
-              <div 
-                key={colIndex} 
-                className={`square ${(rowIndex + colIndex) % 2 === 0 ? 'light' : 'dark'}
-                ${isSquareSelected(rowIndex, colIndex) ? 'selected-square' : ''}`}
-                onClick={() => handleSquareClick(rowIndex, colIndex, piece)}
+              <div
+                key={colIndex}
+                className={`square ${(rowIndex + colIndex) % 2 === 0 ? 'dark' : 'light'}
+                ${isSquareSelected(7 - rowIndex, colIndex) ? 'selected-square' : ''}`}
+                onClick={() => handleSquareClick(7 - rowIndex, colIndex, piece)}
               >
                 {piece && (
                   <img src={pieceImages[piece]} alt={piece} className='piece' />
                 )}
-                {isMoveSquare(rowIndex, colIndex) && (
-                  <div className="safe-square" onClick={() => handlePieceMove(rowIndex, colIndex)}></div>
+                {isMoveSquare(7 - rowIndex, colIndex) && (
+                  <div className="safe-square" onClick={() => handlePieceMove(7 - rowIndex, colIndex)}></div>
                 )}
               </div>
             ))}
@@ -210,7 +307,7 @@ const ChessGame = () => {
         ))}
       </div>
       <div>
-        <h1>Current Turn: {turn}</h1> 
+        <h1>Current Turn: {turn}</h1>
         <button onClick={handleReset}>RESTART GAME</button>
         <h1>Legal Moves</h1>
         {legalMoves.map((move, index) => (
@@ -219,6 +316,15 @@ const ChessGame = () => {
           </button>
         ))}
       </div>
+      {promotion && (
+        <div className="promotion-choice">
+          <p>Choose promotion piece:</p>
+          <button onClick={() => handlePromotionChoice('q')}>Queen</button>
+          <button onClick={() => handlePromotionChoice('r')}>Rook</button>
+          <button onClick={() => handlePromotionChoice('b')}>Bishop</button>
+          <button onClick={() => handlePromotionChoice('n')}>Knight</button>
+        </div>
+      )}
     </div>
   );
 };
