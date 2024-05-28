@@ -51,6 +51,7 @@ const ChessGame = () => {
   const [currentPiece, setCurrentPiece] = useState('');
   const [promotion, setPromotion] = useState(null);
   const [promotionSquare, setPromotionSquare] = useState(null);
+  const [duplicate, setDuplicate] = useState(false);
 
 
   useEffect(() => {
@@ -102,7 +103,59 @@ const ChessGame = () => {
     }
   };
 
+  const handleDuplicate = async (dest) => {
+    if (currentPiece == 'p' || currentPiece == 'P') {
+      dest = 'x' + dest;
+    }
+    console.log('entered dup');
+    console.log(dest);
+    let count = 0;
+      for (let n = 0; n < legalMoves.length; n++) {
+        if (compareStr(dest, legalMoves[n])) {
+          count++;
+        }
+      }
+
+      console.log(count);
+
+      if (count > 0) {
+        console.log('entered dup2');
+        const curSquare = convertToSAN(selectedSquare['row'], selectedSquare['col']);
+        let temp = curSquare[0] + dest;
+        let move = '';
+        for (let n = 0; n < legalMoves.length; n++) {
+          if (compareStr(temp, legalMoves[n])) {
+            move = legalMoves[n];
+          }
+        }
+        if(!move) {
+          return false;
+        }
+        console.log(`dup = ${move}`);
+
+        try {
+          const response = await axios.post('http://localhost:5000/move', { move });
+          if (response.data.error) {
+            setError(response.data.error);
+          } else {
+            setBoard(convertFenToBoard(response.data.board));
+            setLegalMoves(response.data.legal_moves);
+            setTurn(response.data.turn);
+            setError('');
+            setPromotion(null); // Clear promotion state
+            setPromotionSquare(null);
+            return true;
+          }
+        } catch (error) {
+          console.error('Error making move:', error);
+          setError('Invalid move');
+        }
+      }
+      return false;
+  }
+
   const handlePieceMove = async (row, col) => {
+    setDuplicate(false);
     try {
       const square = convertToSAN(row, col);
       let move = '';
@@ -114,6 +167,13 @@ const ChessGame = () => {
         setPromotion({ piece: currentPiece, square });
         return; // Stop further execution to wait for promotion choice
       }
+
+      let dest = 'x' + square;
+      if (await handleDuplicate(square)) {
+        return true;
+      };
+
+      console.log('bye');
 
       if (currentPiece !== 'P' && currentPiece !== 'p') {
         let temp = currentPiece.toUpperCase() + square;
@@ -183,7 +243,6 @@ const ChessGame = () => {
     }
   };
   
-
   const handleReset = async () => {
     try {
       const response = await axios.post('http://localhost:5000/reset');
@@ -206,7 +265,6 @@ const ChessGame = () => {
     }
   };
   
-
   const convertFenToBoard = (fen) => {
     const rows = fen.split(' ')[0].split('/');
     return rows.map(row => {
@@ -250,7 +308,6 @@ const ChessGame = () => {
     }
   };
   
-
   const isSquareSelected = (row, col) => {
     return selectedSquare && selectedSquare.row === row && selectedSquare.col === col;
   };
@@ -279,7 +336,6 @@ const ChessGame = () => {
     };
     return false;
   };
-  
   
   return (
     <div>

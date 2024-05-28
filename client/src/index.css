@@ -1,15 +1,21 @@
+
+
 body {
   height: 100%;
   padding: 10px;
-  background-color: rgb(255, 255, 255);
+  background-color: #9e866a;
 }
 
 .chess-board {
   display: flex;
   justify-content: center;
   flex-direction: column-reverse;
-  width: 480px;
-  height: 480px;
+  width: 600px;
+  height: 500px;
+  padding-top: 15px;
+  padding-bottom: 16px;
+  border-radius: 25px;
+  zoom: 135%;
 }
 
 .rotated {
@@ -26,11 +32,10 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 60px;
-  width: 60px;
+  height: 70px;
+  width: 80px;
   cursor: pointer;
-  border: 1px solid rgb(0, 0, 0);
-  background-color: white;
+  border-radius: 2px;
 }
 
 
@@ -58,7 +63,7 @@ body {
 }
 
 .dark {
-  background-color: #4a92f0;
+  background-color: #869AA5;
 }
 
 .light {
@@ -66,7 +71,7 @@ body {
 }
 
 .piece {
-  width: 55px;
+  width: 73px;
 }
 
 .selected-square {
@@ -77,9 +82,10 @@ body {
   position: absolute;
   height: 20px;
   width: 20px;
-  background-color: #bbb;
+  background-color: #000000;
   border-radius: 50%;
   z-index: 100;
+  opacity: 0.5;
 }
 
 .move-indicator {
