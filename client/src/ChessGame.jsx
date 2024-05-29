@@ -50,8 +50,11 @@ const ChessGame = () => {
   const [squareMoves, setSquareMoves] = useState([]);
   const [currentPiece, setCurrentPiece] = useState('');
   const [promotion, setPromotion] = useState(null);
-  const [promotionSquare, setPromotionSquare] = useState(null);
-  const [duplicate, setDuplicate] = useState(false);
+  const [moveList, setMovelist] = useState(() => {
+    const storedMoveList = localStorage.getItem('moveList');
+    return storedMoveList ? JSON.parse(storedMoveList) : [];
+  });
+  const [gameOver, setGameover] = useState(false);
 
 
   useEffect(() => {
@@ -65,6 +68,17 @@ const ChessGame = () => {
     fetchBoard();
     fetchLegalMoves();
   }, [turn]);
+
+  useEffect(() => {
+    const storedMoveList = localStorage.getItem('moveList');
+    if (storedMoveList) {
+      setMovelist(JSON.parse(storedMoveList));
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('moveList', JSON.stringify(moveList));
+  }, [moveList]);
 
 
   const fetchBoard = async () => {
@@ -143,7 +157,24 @@ const ChessGame = () => {
             setTurn(response.data.turn);
             setError('');
             setPromotion(null); // Clear promotion state
-            setPromotionSquare(null);
+            setMovelist(prevMoveList => [...prevMoveList, move]);
+            setGameover(response.data.game_over);
+            console.log(response.data.game_over);
+            if (gameOver) {
+              return;
+            }
+
+            const aiMoveResponse = await axios.post('http://localhost:5000/ai_move', { fen: response.data.board });
+            if (aiMoveResponse.data.error) {
+              setError(aiMoveResponse.data.error);
+            } else {
+              setBoard(convertFenToBoard(aiMoveResponse.data.board));
+              setLegalMoves(aiMoveResponse.data.legal_moves);
+              setTurn(aiMoveResponse.data.turn);
+              setMovelist(prevMoveList => [...prevMoveList, aiMoveResponse.data.move]);
+              setGameover(aiMoveResponse.data.game_over);
+              console.log(aiMoveResponse.data.game_over);
+            }
             return true;
           }
         } catch (error) {
@@ -155,7 +186,6 @@ const ChessGame = () => {
   }
 
   const handlePieceMove = async (row, col) => {
-    setDuplicate(false);
     try {
       const square = convertToSAN(row, col);
       let move = '';
@@ -163,17 +193,18 @@ const ChessGame = () => {
       console.log(`Row: ${row}, CurrentPiece: ${currentPiece}`);
       if ((currentPiece === 'P' && row === 0) || (currentPiece === 'p' && row === 7)) {
         console.log('Pawn promotion condition met');
-        setPromotionSquare({ row, col });
-        setPromotion({ piece: currentPiece, square });
+        //const promo = compareStr((currentPiece + square), legalMoves)
+        console.log(`promo= ${currentPiece + square}`)
+        setPromotion(square);
         return; // Stop further execution to wait for promotion choice
       }
 
-      let dest = 'x' + square;
+      //let dest = 'x' + square;
       if (await handleDuplicate(square)) {
         return true;
       };
 
-      console.log('bye');
+      console.log('not duplicate');
 
       if (currentPiece !== 'P' && currentPiece !== 'p') {
         let temp = currentPiece.toUpperCase() + square;
@@ -211,7 +242,25 @@ const ChessGame = () => {
         setBoard(convertFenToBoard(response.data.board));
         setLegalMoves(response.data.legal_moves);
         setTurn(response.data.turn);
+        setMovelist(prevMoveList => [...prevMoveList, move]);
         setError('');
+        setGameover(response.data.game_over);
+        console.log(response.data.game_over);
+        if (gameOver) {
+          return;
+        }
+
+        const aiMoveResponse = await axios.post('http://localhost:5000/ai_move', { fen: response.data.board });
+        if (aiMoveResponse.data.error) {
+          setError(aiMoveResponse.data.error);
+        } else {
+          setBoard(convertFenToBoard(aiMoveResponse.data.board));
+          setLegalMoves(aiMoveResponse.data.legal_moves);
+          setTurn(aiMoveResponse.data.turn);
+          setMovelist(prevMoveList => [...prevMoveList, aiMoveResponse.data.move]);
+          setGameover(aiMoveResponse.data.game_over);
+          console.log(aiMoveResponse.data.game_over);
+        }
       }
     } catch (error) {
       console.error('Error making move:', error);
@@ -221,8 +270,13 @@ const ChessGame = () => {
 
   const handlePromotionChoice = async (choice) => {
     if (promotion) {
-      const { piece, square } = promotion;
-      const move = square + choice;
+      let move = '';
+      console.log(`choice: ${promotion + choice.toUpperCase()}`)
+      for (let x = 0; x < legalMoves.length; x++) {
+        if (compareStr((promotion + choice.toUpperCase()), legalMoves[x])) {
+          move = legalMoves[x];
+        }
+      }
   
       try {
         const response = await axios.post('http://localhost:5000/move', { move });
@@ -233,8 +287,26 @@ const ChessGame = () => {
           setLegalMoves(response.data.legal_moves);
           setTurn(response.data.turn);
           setError('');
+          setMovelist(prevMoveList => [...prevMoveList, move]);
           setPromotion(null); // Clear promotion state
-          setPromotionSquare(null);
+          if (gameOver) {
+            return;
+          }
+
+          const aiMoveResponse = await axios.post('http://localhost:5000/ai_move', { fen: response.data.board });
+          if (aiMoveResponse.data.error) {
+            setError(aiMoveResponse.data.error);
+          } else {
+            setBoard(convertFenToBoard(aiMoveResponse.data.board));
+            setLegalMoves(aiMoveResponse.data.legal_moves);
+            setTurn(aiMoveResponse.data.turn);
+            setMovelist(prevMoveList => [...prevMoveList, aiMoveResponse.data.move]);
+            setGameover(aiMoveResponse.data.game_over);
+            console.log(aiMoveResponse.data.game_over);
+            if (gameOver) {
+              return;
+            }
+          }
         }
       } catch (error) {
         console.error('Error making move:', error);
@@ -250,6 +322,8 @@ const ChessGame = () => {
       setLegalMoves(response.data.legal_moves);
       setTurn(response.data.turn);
       setError('');
+      setMovelist([]);
+      setGameover(false);
     } catch (error) {
       console.error('Error resetting game:', error);
     }
@@ -338,33 +412,50 @@ const ChessGame = () => {
   };
   
   return (
-    <div>
-      <h1>Chess Board</h1>
+    <div className="chess-app">
+      <>.</>
       {error && <p style={{ color: 'red' }}>{error}</p>}
-      <div className="chess-board">
-        {board.slice().reverse().map((row, rowIndex) => (
-          <div key={rowIndex} className="row">
-            {row.map((piece, colIndex) => (
-              <div
-                key={colIndex}
-                className={`square ${(rowIndex + colIndex) % 2 === 0 ? 'dark' : 'light'}
-                ${isSquareSelected(7 - rowIndex, colIndex) ? 'selected-square' : ''}`}
-                onClick={() => handleSquareClick(7 - rowIndex, colIndex, piece)}
-              >
-                {piece && (
-                  <img src={pieceImages[piece]} alt={piece} className='piece' />
-                )}
-                {isMoveSquare(7 - rowIndex, colIndex) && (
-                  <div className="safe-square" onClick={() => handlePieceMove(7 - rowIndex, colIndex)}></div>
-                )}
-              </div>
+      {gameOver && (
+        <div className={`game-over-prompt ${gameOver ? 'show' : ''}`}>
+          <h1>Game Over!</h1>
+          <button onClick={handleReset}>Restart Game</button>
+        </div>
+      )}
+      <div className="board-and-move-list">
+        <div className="chess-board">
+          {board.slice().reverse().map((row, rowIndex) => (
+            <div key={rowIndex} className="row">
+              {row.map((piece, colIndex) => (
+                <div
+                  key={colIndex}
+                  className={`square ${(rowIndex + colIndex) % 2 === 0 ? 'dark' : 'light'}
+                  ${isSquareSelected(7 - rowIndex, colIndex) ? 'selected-square' : ''}`}
+                  onClick={() => handleSquareClick(7 - rowIndex, colIndex, piece)}
+                >
+                  {piece && (
+                    <img src={pieceImages[piece]} alt={piece} className='piece' />
+                  )}
+                  {isMoveSquare(7 - rowIndex, colIndex) && (
+                    <div className="safe-square" onClick={() => handlePieceMove(7 - rowIndex, colIndex)}></div>
+                  )}
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+        <div className='move-list'>
+          <h2>Move List</h2>
+          <ul id="move-list">
+            {moveList.map((move, index) => (
+              <li key={index}>{move}</li>
             ))}
-          </div>
-        ))}
+          </ul>
+        </div>
       </div>
       <div>
         <h1>Current Turn: {turn}</h1>
         <button onClick={handleReset}>RESTART GAME</button>
+        <button onClick={() => setGameover(true)}>RESIGN</button>
         <h1>Legal Moves</h1>
         {legalMoves.map((move, index) => (
           <button key={index} onClick={() => handleMove(move)}>

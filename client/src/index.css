@@ -1,9 +1,18 @@
-
-
 body {
   height: 100%;
   padding: 10px;
   background-color: #9e866a;
+}
+
+.chess-app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.board-and-move-list {
+  display: flex;
+  align-items: flex-start;
 }
 
 .chess-board {
@@ -16,10 +25,6 @@ body {
   padding-bottom: 16px;
   border-radius: 25px;
   zoom: 135%;
-}
-
-.rotated {
-  transform: rotate(180deg);
 }
 
 .row {
@@ -37,7 +42,6 @@ body {
   cursor: pointer;
   border-radius: 2px;
 }
-
 
 .game-over-message {
   color: white;
@@ -76,6 +80,32 @@ body {
 
 .selected-square {
   box-shadow: inset rgba(60, 70, 85, 0.5) 0px 0px 40px 0px, inset rgba(60, 70, 85, 0.5) 0px 0px 40px 0px, inset rgba(0, 0, 0, 1) 0px 0px 36px -24px;
+}
+
+.move-list {
+  margin-left: 20px;
+  width: 300px;
+  height: 705px;
+  max-height: 705px;
+  border: 2px solid #0c0c0c;
+  border-radius: 9px;
+  padding: 5px;
+  background-color: rgb(61, 43, 25);
+  color: white;
+  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+  overflow-y: auto;
+  box-sizing: border-box;
+  bottom: 0;
+}
+
+.move-list h2 {
+  text-align: center;
+  position: sticky;
+  top: 0;
+}
+
+.move-list li {
+  font-size: 20px;
 }
 
 .safe-square {
@@ -119,4 +149,36 @@ body {
   background-color: #e91e1e;
   border-radius: 50%;
   z-index: 100;
+}
+
+.game-over-prompt {
+  position: absolute;
+  top: 41.5%;
+  left: 41.6%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+  z-index: 1;
+}
+
+.game-over-prompt h1 {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.game-over-prompt button {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.game-over-prompt button:hover {
+  background-color: #0056b3;
 }

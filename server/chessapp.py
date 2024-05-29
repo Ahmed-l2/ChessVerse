@@ -1,10 +1,16 @@
 from flask import Flask, jsonify, request
 from chessLogic import ChessGame
 from flask_cors import CORS
+from stockfish import Stockfish
+import time
 
 app = Flask(__name__)
 cors = CORS(app, origins='*')
 game = ChessGame()
+
+stockfish = Stockfish(path="/usr/games/stockfish")
+stockfish._set_option('UCI_LimitStrength', 'true')
+stockfish._set_option('UCI_Elo', 1000)
 
 @app.route('/board', methods=['GET'])
 def get_board():
@@ -22,9 +28,31 @@ def make_move():
     print(type(data))
     success, result = game.make_move(move)
     if success:
-        return jsonify({'board': result, 'legal_moves': game.get_legal_moves()})
+        return jsonify({'board': result, 'legal_moves': game.get_legal_moves(), 'game_over': game.is_game_over()})
     else:
         return jsonify({'error': result}), 400
+
+@app.route('/ai_move', methods=['POST'])
+def get_ai_move():
+    time.sleep(1)
+    try:
+        data = request.json
+        fen_position = data.get('fen')  # Get the FEN position from the frontend
+
+        # Set Stockfish position to the given FEN
+        stockfish.set_fen_position(fen_position)
+
+        # Get the best move from Stockfish
+        best_move = stockfish.get_best_move()
+
+        # Apply the move to your game (assuming your ChessGame class has a method for this)
+        success, result = game.make_move(best_move)
+        if success:
+            return jsonify({'move': best_move, 'board': result, 'legal_moves': game.get_legal_moves(), 'game_over': game.is_game_over()})
+        else:
+            return jsonify({'error': 'Invalid move'}), 400
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/legal_moves', methods=['GET'])
 def get_legal_moves():

@@ -5,6 +5,7 @@ import chess.engine
 class ChessGame:
     def __init__(self):
         self.board = chess.Board()
+        self.engine = chess.engine.SimpleEngine.popen_uci("/usr/games/stockfish")
 
     def get_board(self):
         return self.board.fen()
@@ -15,6 +16,18 @@ class ChessGame:
             return True, self.board.fen()
         except ValueError:
             return False, "Invalid move"
+    
+    def ai_move(self):
+        # Get the best move from Stockfish
+        self.engine.set_fen_position(self.board.fen())
+        best_move = self.engine.get_best_move()
+
+        # Apply the move to the board
+        success, result = self.make_move(best_move)
+        if success:
+            return result
+        else:
+            return "Invalid move"
 
     def is_game_over(self):
         return self.board.is_game_over()
