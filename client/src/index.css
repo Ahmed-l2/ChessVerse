@@ -1,7 +1,10 @@
 body {
-  height: 100%;
-  padding: 10px;
-  background-color: #9e866a;
+  background: url('./assets/bg.png') no-repeat center center fixed;
+  background-color: #0C0C0C;
+  background-size: cover; /* This will ensure the background image covers the entire viewport */
+  height: 100vh; /* Set the body's height to be 100% of the viewport height */
+  margin: 0; /* Remove any default margins */
+  padding: 0; /* Remove any default padding */
 }
 
 .chess-app {
@@ -21,7 +24,7 @@ body {
   flex-direction: column-reverse;
   width: 600px;
   height: 500px;
-  padding-top: 15px;
+  padding-top: 40px;
   padding-bottom: 16px;
   border-radius: 25px;
   zoom: 135%;
@@ -89,7 +92,8 @@ body {
   max-height: 705px;
   border: 2px solid #0c0c0c;
   border-radius: 9px;
-  padding: 5px;
+  margin-top: 30px;
+  padding: 10px;
   background-color: rgb(61, 43, 25);
   color: white;
   font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
@@ -97,6 +101,7 @@ body {
   box-sizing: border-box;
   bottom: 0;
 }
+
 
 .move-list h2 {
   text-align: center;
@@ -151,16 +156,45 @@ body {
   z-index: 100;
 }
 
+.access {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 150px;
+  padding: 2px;
+  margin-right: 335px;
+}
+
+.turn {
+  margin-bottom: 10px;
+  text-align: center;
+  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+
+.btn {
+  display: flex;
+  justify-content: center;
+  width: 350px;
+  gap: 10px;
+  height: 60px;
+  margin-top: 20px;
+}
+
+
 .game-over-prompt {
   position: absolute;
-  top: 41.5%;
-  left: 41.6%;
+  top: 44%;
+  left: 42%;
   transform: translate(-50%, -50%);
-  background-color: rgba(255, 255, 255, 0.9);
-  padding: 20px;
-  border-radius: 10px;
-  text-align: center;
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+  padding: 10px;
+  font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+  width: auto;
+  max-width: 320px;
+  border-width: 1px;
+  border-color: rgba(219, 234, 254, 1);
+  border-radius: 1rem;
+  background-color: rgba(255, 255, 255, 1);
+  padding: 1rem;
   z-index: 1;
 }
 
@@ -181,4 +215,64 @@ body {
 
 .game-over-prompt button:hover {
   background-color: #0056b3;
+}
+
+.card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 10px;
+  font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+  width: 400px;
+  max-width: 320px;
+  border-width: 1px;
+  border-color: rgba(219, 234, 254, 1);
+  border-radius: 1rem;
+  background-color: rgba(255, 255, 255, 1);
+  padding: 1rem;
+  z-index: 1;
+}
+
+.alert {
+  font-weight: 600;
+  color: rgba(107, 114, 128, 1);
+  text-align: center;
+}
+
+.actions {
+  margin-top: 1.5rem;
+  width: 17em;
+  align-content: center;
+}
+
+.actions a {
+  text-decoration: none;
+}
+
+.mark-as-read, .read {
+  display: inline-block;
+  border-radius: 0.5rem;
+  width: 100%;
+  padding: 0.75rem 1.25rem;
+  text-align: center;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 600;
+}
+
+.read {
+  background-color: rgba(59, 130, 246, 1);
+  color: rgba(255, 255, 255, 1);
+}
+
+.mark-as-read {
+  margin-top: 0.5rem;
+  background-color: rgba(249, 250, 251, 1);
+  color: rgba(107, 114, 128, 1);
+  transition: all .15s ease;
+}
+
+.mark-as-read:hover {
+  background-color: rgb(230, 231, 233);
 }

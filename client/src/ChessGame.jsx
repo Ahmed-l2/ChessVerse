@@ -41,7 +41,7 @@ const compareStr = (str1, str2) =>{
   return true;
 };
 
-const ChessGame = () => {
+const ChessGame = (props) => {
   const [board, setBoard] = useState([]);
   const [legalMoves, setLegalMoves] = useState([]);
   const [error, setError] = useState('');
@@ -56,6 +56,9 @@ const ChessGame = () => {
   });
   const [gameOver, setGameover] = useState(false);
 
+  useEffect(() => {
+    handleReset();
+  }, [props.ai]);
 
   useEffect(() => {
     fetchBoard();
@@ -164,16 +167,18 @@ const ChessGame = () => {
               return;
             }
 
-            const aiMoveResponse = await axios.post('http://localhost:5000/ai_move', { fen: response.data.board });
-            if (aiMoveResponse.data.error) {
-              setError(aiMoveResponse.data.error);
-            } else {
-              setBoard(convertFenToBoard(aiMoveResponse.data.board));
-              setLegalMoves(aiMoveResponse.data.legal_moves);
-              setTurn(aiMoveResponse.data.turn);
-              setMovelist(prevMoveList => [...prevMoveList, aiMoveResponse.data.move]);
-              setGameover(aiMoveResponse.data.game_over);
-              console.log(aiMoveResponse.data.game_over);
+            if (props.ai) {
+              const aiMoveResponse = await axios.post('http://localhost:5000/ai_move', { fen: response.data.board });
+              if (aiMoveResponse.data.error) {
+                setError(aiMoveResponse.data.error);
+              } else {
+                setBoard(convertFenToBoard(aiMoveResponse.data.board));
+                setLegalMoves(aiMoveResponse.data.legal_moves);
+                setTurn(aiMoveResponse.data.turn);
+                setMovelist(prevMoveList => [...prevMoveList, aiMoveResponse.data.move]);
+                setGameover(aiMoveResponse.data.game_over);
+                console.log(aiMoveResponse.data.game_over);
+              }
             }
             return true;
           }
@@ -249,17 +254,22 @@ const ChessGame = () => {
         if (gameOver) {
           return;
         }
-
-        const aiMoveResponse = await axios.post('http://localhost:5000/ai_move', { fen: response.data.board });
-        if (aiMoveResponse.data.error) {
-          setError(aiMoveResponse.data.error);
-        } else {
-          setBoard(convertFenToBoard(aiMoveResponse.data.board));
-          setLegalMoves(aiMoveResponse.data.legal_moves);
-          setTurn(aiMoveResponse.data.turn);
-          setMovelist(prevMoveList => [...prevMoveList, aiMoveResponse.data.move]);
-          setGameover(aiMoveResponse.data.game_over);
-          console.log(aiMoveResponse.data.game_over);
+        
+        if (props.ai) {
+          const aiMoveResponse = await axios.post('http://localhost:5000/ai_move', { fen: response.data.board });
+          if (aiMoveResponse.data.error) {
+            setError(aiMoveResponse.data.error);
+          } else {
+            setBoard(convertFenToBoard(aiMoveResponse.data.board));
+            setLegalMoves(aiMoveResponse.data.legal_moves);
+            setTurn(aiMoveResponse.data.turn);
+            setMovelist(prevMoveList => [...prevMoveList, aiMoveResponse.data.move]);
+            setGameover(aiMoveResponse.data.game_over);
+            console.log(aiMoveResponse.data.game_over);
+            if (gameOver) {
+              return;
+            }
+          }
         }
       }
     } catch (error) {
@@ -293,18 +303,20 @@ const ChessGame = () => {
             return;
           }
 
-          const aiMoveResponse = await axios.post('http://localhost:5000/ai_move', { fen: response.data.board });
-          if (aiMoveResponse.data.error) {
-            setError(aiMoveResponse.data.error);
-          } else {
-            setBoard(convertFenToBoard(aiMoveResponse.data.board));
-            setLegalMoves(aiMoveResponse.data.legal_moves);
-            setTurn(aiMoveResponse.data.turn);
-            setMovelist(prevMoveList => [...prevMoveList, aiMoveResponse.data.move]);
-            setGameover(aiMoveResponse.data.game_over);
-            console.log(aiMoveResponse.data.game_over);
-            if (gameOver) {
-              return;
+          if (props.ai) {
+            const aiMoveResponse = await axios.post('http://localhost:5000/ai_move', { fen: response.data.board });
+            if (aiMoveResponse.data.error) {
+              setError(aiMoveResponse.data.error);
+            } else {
+              setBoard(convertFenToBoard(aiMoveResponse.data.board));
+              setLegalMoves(aiMoveResponse.data.legal_moves);
+              setTurn(aiMoveResponse.data.turn);
+              setMovelist(prevMoveList => [...prevMoveList, aiMoveResponse.data.move]);
+              setGameover(aiMoveResponse.data.game_over);
+              console.log(aiMoveResponse.data.game_over);
+              if (gameOver) {
+                return;
+              }
             }
           }
         }
@@ -364,7 +376,7 @@ const ChessGame = () => {
     let pieceColor = null;
     if (piece && piece.toUpperCase() === piece) {
       pieceColor = 'white';
-    } else if (piece && piece.toLowerCase() === piece) {
+    } else if (!props.ai && (piece && piece.toLowerCase() === piece)) {
       pieceColor = 'black';
     }
   
@@ -417,8 +429,8 @@ const ChessGame = () => {
       {error && <p style={{ color: 'red' }}>{error}</p>}
       {gameOver && (
         <div className={`game-over-prompt ${gameOver ? 'show' : ''}`}>
-          <h1>Game Over!</h1>
-          <button onClick={handleReset}>Restart Game</button>
+          <p className="alert">GAME OVER!</p>
+          <button className="read" onClick={handleReset}>Restart Game</button>
         </div>
       )}
       <div className="board-and-move-list">
@@ -452,17 +464,21 @@ const ChessGame = () => {
           </ul>
         </div>
       </div>
-      <div>
-        <h1>Current Turn: {turn}</h1>
-        <button onClick={handleReset}>RESTART GAME</button>
-        <button onClick={() => setGameover(true)}>RESIGN</button>
+      <div className='access'>
+        <h1 className='turn'>Current Turn: {turn}</h1>
+        <div className='btn'>
+          <button className="mark-as-read" onClick={handleReset}>RESTART GAME</button>
+          <button className="mark-as-read" onClick={() => setGameover(true)}>RESIGN</button>
+        </div>
+      </div>
+      {/*<div>
         <h1>Legal Moves</h1>
         {legalMoves.map((move, index) => (
           <button key={index} onClick={() => handleMove(move)}>
             {move}
           </button>
         ))}
-      </div>
+      </div>*/}
       {promotion && (
         <div className="promotion-choice">
           <p>Choose promotion piece:</p>
