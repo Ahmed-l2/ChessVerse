@@ -52,8 +52,6 @@ ChessVerse is a dynamic and interactive chess application developed by Ahmed Ali
 2. Install the required packages:
    ```bash
    npm install
-   # or
-   yarn install
    ```
 
 3. Start the frontend server:
