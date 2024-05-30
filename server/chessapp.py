@@ -34,7 +34,7 @@ def make_move():
 
 @app.route('/ai_move', methods=['POST'])
 def get_ai_move():
-    time.sleep(1)
+    #time.sleep(0.5)
     try:
         data = request.json
         fen_position = data.get('fen')  # Get the FEN position from the frontend
