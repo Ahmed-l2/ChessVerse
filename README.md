@@ -1,5 +1,3 @@
-Yes, you can include Stockfish with the repository by adding the Stockfish binary directly to your repo and adjusting the backend setup to use this included binary. Here’s how you can update your README to reflect these changes:
-
 # ChessVerse
 
 ## Project Overview
