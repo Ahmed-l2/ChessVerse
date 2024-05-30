@@ -1,6 +1,4 @@
 # ChessVerse
-
-## Project Overview
 ChessVerse is a dynamic and interactive chess application developed by Ahmed, Ayman, and Mohammed. This application allows users to enjoy the classic game of chess with two exciting game modes: playing against a powerful AI (Stockfish) and local play against another person.
 
 ## Features
