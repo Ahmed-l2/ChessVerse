@@ -1,11 +1,10 @@
 # ChessVerse
-ChessVerse is a dynamic and interactive chess application developed by Ahmed, Ayman, and Mohammed. This application allows users to enjoy the classic game of chess with two exciting game modes: playing against a powerful AI (Stockfish) and local play against another person.
+ChessVerse is a dynamic and interactive chess application developed by Ahmed Ali, Ayman Belahsen, and Mohammed Bel-assal for a school project. This application allows users to enjoy the classic game of chess with two game modes: playing against AI (Stockfish) and local play against another person.
 
 ## Features
 - **Play against AI**: Challenge yourself against the Stockfish AI, one of the strongest chess engines available.
 - **Local Play**: Play chess with a friend on the same device.
 - **User-friendly Interface**: Intuitive and easy-to-use interface created with React.
-- **Robust Backend**: Powerful and efficient backend built with Python.
 
 ## Technology Stack
 - **Frontend**: React
@@ -17,7 +16,7 @@ ChessVerse is a dynamic and interactive chess application developed by Ahmed, Ay
 ### Prerequisites
 - Python 3.x
 - Node.js
-- npm or yarn
+- npm
 
 ### Backend Setup
 1. Clone the repository:
@@ -60,13 +59,11 @@ ChessVerse is a dynamic and interactive chess application developed by Ahmed, Ay
 3. Start the frontend server:
    ```bash
    npm start
-   # or
-   yarn start
    ```
 
 ### Running the Application
 - Ensure both backend and frontend servers are running.
-- Open your web browser and go to `http://localhost:3000`.
+- Open your web browser and go to `http://localhost:5173/`.
 
 ## Usage
 1. Open the application in your web browser.
@@ -74,9 +71,9 @@ ChessVerse is a dynamic and interactive chess application developed by Ahmed, Ay
 3. Enjoy your game of chess!
 
 ## Contributors
-- **Ahmed**
-- **Ayman**
-- **Mohammed**
+- **Ahmed Ali**
+- **Ayman Belahsen**
+- **Mohammed Bel-assal**
 
 ## License
 This project is licensed under the MIT License.
@@ -86,6 +83,6 @@ This project is licensed under the MIT License.
 
 ## Contact
 For any questions or feedback, please contact us at:
-- Ahmed: [ahmed@example.com](mailto:ahmed@example.com)
-- Ayman: [ayman@example.com](mailto:ayman@example.com)
-- Mohammed: [mohammed@example.com](mailto:mohammed@example.com)
+- Ahmed Ali: [ahmed@example.com](mailto:ahmed@example.com)
+- Ayman Belahsen: [ayman@example.com](mailto:ayman@example.com)
+- Mohammed Bel-assal: [mohammed@example.com](mailto:mohammed@example.com)
