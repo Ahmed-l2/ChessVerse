@@ -27,31 +27,31 @@ ChessVerse is a dynamic and interactive chess application developed by Ahmed, Ay
 1. Clone the repository:
    ```bash
    git clone https://github.com/your-repo/ChessVerse.git
-   cd ChessVerse/backend
+   cd ChessVerse/server
    ```
 
 2. Create a virtual environment and activate it:
    ```bash
    python -m venv venv
-   source venv/bin/activate # On Windows use `venv\Scripts\activate`
+   source venv/bin/activate
    ```
 
 3. Install the required Python packages:
    ```bash
-   pip install -r requirements.txt
+   pip3 install -r requirements.txt
    ```
 
 4. Ensure the Stockfish binary is included in the backend directory (this is already included in the repo).
 
 5. Start the backend server:
    ```bash
-   python app.py
+   python chessapp.py
    ```
 
 ### Frontend Setup
 1. Navigate to the frontend directory:
    ```bash
-   cd ../frontend
+   cd ../client
    ```
 
 2. Install the required packages:
