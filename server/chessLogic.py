@@ -5,7 +5,7 @@ import chess.engine
 class ChessGame:
     def __init__(self):
         self.board = chess.Board()
-        self.engine = chess.engine.SimpleEngine.popen_uci("./stockfish/stockfish-ubuntu-x86-64-avx2")
+        self.engine = chess.engine.SimpleEngine.popen_uci("/usr/games/stockfish")
 
     def get_board(self):
         return self.board.fen()
