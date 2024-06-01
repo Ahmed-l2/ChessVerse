@@ -1,5 +1,3 @@
-#!/server/venv/bin/python3
-
 from flask import Flask, jsonify, request
 from chessLogic import ChessGame
 from flask_cors import CORS
