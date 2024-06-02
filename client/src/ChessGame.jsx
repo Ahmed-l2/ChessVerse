@@ -86,7 +86,7 @@ const ChessGame = (props) => {
 
   const fetchBoard = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/board');
+      const response = await axios.get('http://13.60.66.110/board');
       setBoard(convertFenToBoard(response.data.board));
       setTurn(response.data.turn);
     } catch (error) {
@@ -96,7 +96,7 @@ const ChessGame = (props) => {
 
   const fetchLegalMoves = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/legal_moves');
+      const response = await axios.get('http://13.60.66.110/legal_moves');
       setLegalMoves(response.data.legal_moves);
     } catch (error) {
       console.error('Error fetching legal moves:', error);
@@ -105,7 +105,7 @@ const ChessGame = (props) => {
 
   const handleMove = async (move) => {
     try {
-      const response = await axios.post('http://localhost:5000/move', { move });
+      const response = await axios.post('http://13.60.66.110/move', { move });
       if (response.data.error) {
         setError(response.data.error);
       } else {
@@ -151,7 +151,7 @@ const ChessGame = (props) => {
         console.log(`dup = ${move}`);
 
         try {
-          const response = await axios.post('http://localhost:5000/move', { move });
+          const response = await axios.post('http://13.60.66.110/move', { move });
           if (response.data.error) {
             setError(response.data.error);
           } else {
@@ -168,7 +168,7 @@ const ChessGame = (props) => {
             }
 
             if (props.ai) {
-              const aiMoveResponse = await axios.post('http://localhost:5000/ai_move', { fen: response.data.board });
+              const aiMoveResponse = await axios.post('http://13.60.66.110/ai_move', { fen: response.data.board });
               if (aiMoveResponse.data.error) {
                 setError(aiMoveResponse.data.error);
               } else {
@@ -240,7 +240,7 @@ const ChessGame = (props) => {
         }
       }
   
-      const response = await axios.post('http://localhost:5000/move', { move });
+      const response = await axios.post('http://13.60.66.110/move', { move });
       if (response.data.error) {
         setError(response.data.error);
       } else {
@@ -256,7 +256,7 @@ const ChessGame = (props) => {
         }
         
         if (props.ai) {
-          const aiMoveResponse = await axios.post('http://localhost:5000/ai_move', { fen: response.data.board });
+          const aiMoveResponse = await axios.post('http://13.60.66.110/ai_move', { fen: response.data.board });
           if (aiMoveResponse.data.error) {
             setError(aiMoveResponse.data.error);
           } else {
@@ -289,7 +289,7 @@ const ChessGame = (props) => {
       }
   
       try {
-        const response = await axios.post('http://localhost:5000/move', { move });
+        const response = await axios.post('http://13.60.66.110/move', { move });
         if (response.data.error) {
           setError(response.data.error);
         } else {
@@ -304,7 +304,7 @@ const ChessGame = (props) => {
           }
 
           if (props.ai) {
-            const aiMoveResponse = await axios.post('http://localhost:5000/ai_move', { fen: response.data.board });
+            const aiMoveResponse = await axios.post('http://13.60.66.110/ai_move', { fen: response.data.board });
             if (aiMoveResponse.data.error) {
               setError(aiMoveResponse.data.error);
             } else {
@@ -329,7 +329,7 @@ const ChessGame = (props) => {
   
   const handleReset = async () => {
     try {
-      const response = await axios.post('http://localhost:5000/reset');
+      const response = await axios.post('http://13.60.66.110/reset');
       setBoard(convertFenToBoard(response.data.board));
       setLegalMoves(response.data.legal_moves);
       setTurn(response.data.turn);
@@ -343,7 +343,7 @@ const ChessGame = (props) => {
 
   const fetchMoves = async (square) => {
     try {
-      const response = await axios.post('http://localhost:5000/get_moves', { square });
+      const response = await axios.post('http://13.60.66.110/get_moves', { square });
       console.log(`Fetched moves for ${square}:`, response.data.moves); // Debugging line
       setSquareMoves(response.data.moves);
     } catch (error) {
