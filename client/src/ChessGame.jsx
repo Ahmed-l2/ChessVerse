@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import useSound from 'use-sound';
 import axios from 'axios';
 
 // Import SVG images
@@ -14,6 +15,10 @@ import q from './assets/q.svg';
 import Q from './assets/Q.svg';
 import k from './assets/k.svg';
 import K from './assets/K.svg';
+
+// Import Sound effects
+import moveSfx from './assets/move.mp3'
+import notifySfx from './assets/notify.mp3'
 
 const pieceImages = { p, P, r, R, n, N, b, B, q, Q, k, K };
 
@@ -56,6 +61,9 @@ const ChessGame = (props) => {
   });
   const [gameOver, setGameover] = useState(false);
 
+  const [playMove] = useSound(moveSfx);
+  const [playNotify] = useSound(notifySfx);
+
   useEffect(() => {
     handleReset();
   }, [props.ai]);
@@ -86,7 +94,7 @@ const ChessGame = (props) => {
 
   const fetchBoard = async () => {
     try {
-      const response = await axios.get('http://13.60.66.110/board');
+      const response = await axios.get('http://127.0.0.1:5000/board');
       setBoard(convertFenToBoard(response.data.board));
       setTurn(response.data.turn);
     } catch (error) {
@@ -96,7 +104,7 @@ const ChessGame = (props) => {
 
   const fetchLegalMoves = async () => {
     try {
-      const response = await axios.get('http://13.60.66.110/legal_moves');
+      const response = await axios.get('http://127.0.0.1:5000/legal_moves');
       setLegalMoves(response.data.legal_moves);
     } catch (error) {
       console.error('Error fetching legal moves:', error);
@@ -105,7 +113,7 @@ const ChessGame = (props) => {
 
   const handleMove = async (move) => {
     try {
-      const response = await axios.post('http://13.60.66.110/move', { move });
+      const response = await axios.post('http://127.0.0.1:5000/move', { move });
       if (response.data.error) {
         setError(response.data.error);
       } else {
@@ -151,7 +159,7 @@ const ChessGame = (props) => {
         console.log(`dup = ${move}`);
 
         try {
-          const response = await axios.post('http://13.60.66.110/move', { move });
+          const response = await axios.post('http://127.0.0.1:5000/move', { move });
           if (response.data.error) {
             setError(response.data.error);
           } else {
@@ -163,12 +171,14 @@ const ChessGame = (props) => {
             setMovelist(prevMoveList => [...prevMoveList, move]);
             setGameover(response.data.game_over);
             console.log(response.data.game_over);
+            playMove();
             if (gameOver) {
+              playNotify();
               return;
             }
 
             if (props.ai) {
-              const aiMoveResponse = await axios.post('http://13.60.66.110/ai_move', { fen: response.data.board });
+              const aiMoveResponse = await axios.post('http://127.0.0.1:5000/ai_move', { fen: response.data.board });
               if (aiMoveResponse.data.error) {
                 setError(aiMoveResponse.data.error);
               } else {
@@ -178,6 +188,11 @@ const ChessGame = (props) => {
                 setMovelist(prevMoveList => [...prevMoveList, aiMoveResponse.data.move]);
                 setGameover(aiMoveResponse.data.game_over);
                 console.log(aiMoveResponse.data.game_over);
+                playMove();
+                if (gameOver) {
+                  playNotify();
+                  return;
+                }
               }
             }
             return true;
@@ -240,7 +255,7 @@ const ChessGame = (props) => {
         }
       }
   
-      const response = await axios.post('http://13.60.66.110/move', { move });
+      const response = await axios.post('http://127.0.0.1:5000/move', { move });
       if (response.data.error) {
         setError(response.data.error);
       } else {
@@ -251,12 +266,14 @@ const ChessGame = (props) => {
         setError('');
         setGameover(response.data.game_over);
         console.log(response.data.game_over);
+        playMove();
         if (gameOver) {
+          playNotify();
           return;
         }
         
         if (props.ai) {
-          const aiMoveResponse = await axios.post('http://13.60.66.110/ai_move', { fen: response.data.board });
+          const aiMoveResponse = await axios.post('http://127.0.0.1:5000/ai_move', { fen: response.data.board });
           if (aiMoveResponse.data.error) {
             setError(aiMoveResponse.data.error);
           } else {
@@ -266,7 +283,9 @@ const ChessGame = (props) => {
             setMovelist(prevMoveList => [...prevMoveList, aiMoveResponse.data.move]);
             setGameover(aiMoveResponse.data.game_over);
             console.log(aiMoveResponse.data.game_over);
+            playMove();
             if (gameOver) {
+              playNotify();
               return;
             }
           }
@@ -289,7 +308,7 @@ const ChessGame = (props) => {
       }
   
       try {
-        const response = await axios.post('http://13.60.66.110/move', { move });
+        const response = await axios.post('http://127.0.0.1:5000/move', { move });
         if (response.data.error) {
           setError(response.data.error);
         } else {
@@ -299,12 +318,14 @@ const ChessGame = (props) => {
           setError('');
           setMovelist(prevMoveList => [...prevMoveList, move]);
           setPromotion(null); // Clear promotion state
+          playMove();
           if (gameOver) {
+            playNotify();
             return;
           }
 
           if (props.ai) {
-            const aiMoveResponse = await axios.post('http://13.60.66.110/ai_move', { fen: response.data.board });
+            const aiMoveResponse = await axios.post('http://127.0.0.1:5000/ai_move', { fen: response.data.board });
             if (aiMoveResponse.data.error) {
               setError(aiMoveResponse.data.error);
             } else {
@@ -314,7 +335,9 @@ const ChessGame = (props) => {
               setMovelist(prevMoveList => [...prevMoveList, aiMoveResponse.data.move]);
               setGameover(aiMoveResponse.data.game_over);
               console.log(aiMoveResponse.data.game_over);
+              playMove();
               if (gameOver) {
+                playNotify();
                 return;
               }
             }
@@ -329,13 +352,14 @@ const ChessGame = (props) => {
   
   const handleReset = async () => {
     try {
-      const response = await axios.post('http://13.60.66.110/reset');
+      const response = await axios.post('http://127.0.0.1:5000/reset');
       setBoard(convertFenToBoard(response.data.board));
       setLegalMoves(response.data.legal_moves);
       setTurn(response.data.turn);
       setError('');
       setMovelist([]);
       setGameover(false);
+      playNotify();
     } catch (error) {
       console.error('Error resetting game:', error);
     }
@@ -343,7 +367,7 @@ const ChessGame = (props) => {
 
   const fetchMoves = async (square) => {
     try {
-      const response = await axios.post('http://13.60.66.110/get_moves', { square });
+      const response = await axios.post('http://127.0.0.1:5000/get_moves', { square });
       console.log(`Fetched moves for ${square}:`, response.data.moves); // Debugging line
       setSquareMoves(response.data.moves);
     } catch (error) {
@@ -383,7 +407,7 @@ const ChessGame = (props) => {
     if (selectedSquare && selectedSquare.row === row && selectedSquare.col === col) {
       setSelectedSquare(null);
       setSquareMoves([]);
-      setCurrentPiece(''); // Clear the currentPiece state
+      setCurrentPiece('');
       setPromotion(null);
     } else if (pieceColor === turn) {
       const square = convertToSAN(row, col);
