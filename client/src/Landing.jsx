@@ -59,7 +59,6 @@ return (
                             <Users />
                         <h4 className="text-xl font-bold mb-2">Play Localy</h4>
                         </p>
-                        
                         <p>Play against your friends</p>
                     </div>
                 </div>
