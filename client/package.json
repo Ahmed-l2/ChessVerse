@@ -14,14 +14,10 @@
     "axios": "^1.7.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-<<<<<<< HEAD
     "react-scripts": "^3.0.1",
-    "use-sound": "^4.0.1"
-=======
+    "use-sound": "^4.0.1",
     "react-router-dom": "^6.23.1",
-    "react-scripts": "^3.0.1",
     "tailwindcss": "^3.4.3"
->>>>>>> 3f7b6b9ee871c6cb2ba9c72f47006ec75680d715
   },
   "devDependencies": {
     "@types/react": "^18.2.66",

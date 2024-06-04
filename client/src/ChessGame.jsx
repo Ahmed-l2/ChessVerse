@@ -90,6 +90,7 @@ const ChessGame = (props) => {
   useEffect(() => {
     localStorage.setItem('moveList', JSON.stringify(moveList));
   }, [moveList]);
+  
 
 
   const fetchBoard = async () => {
@@ -474,6 +475,10 @@ const ChessGame = (props) => {
                   {isMoveSquare(7 - rowIndex, colIndex) && (
                     <div className="safe-square" onClick={() => handlePieceMove(7 - rowIndex, colIndex)}></div>
                   )}
+                  <div className="board-coordinate">
+                    {colIndex === 0 && <div className="number" id={numbers[7 - rowIndex]}>{numbers[7 - rowIndex]}</div>}
+                    {rowIndex === 0 && <div className="letter" id={letters[colIndex]}>{letters[colIndex]}</div>}
+                  </div>
                 </div>
               ))}
             </div>

@@ -283,3 +283,33 @@ body {
 .mark-as-read:hover {
   background-color: rgb(230, 231, 233);
 }
+
+.chess-board .square {
+  /* Added a new rule targeting the square itself */
+  overflow: hidden; /* Hide overflowing content */
+}
+
+.board-coordinate {
+  position: absolute;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  width: 100%; /* Set width to match square */
+  height: 100%; /* Set height to match square */
+}
+
+.letter {
+  font-size: 10px; /* Adjust font size as needed */
+  text-align: right;
+  margin-left: 68px;
+}
+
+#a {
+  margin-left: 0;
+  margin-right: 2.5px;
+}
+
+.number {
+  font-size: 10px; /* Adjust font size as needed */
+  margin-left: 1.5px;
+}
