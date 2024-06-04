@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 body {
   background: url('./assets/bg.png') no-repeat center center fixed;
   background-color: #0C0C0C;
