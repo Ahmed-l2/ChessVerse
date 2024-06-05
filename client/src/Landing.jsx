@@ -16,7 +16,7 @@ return (
 
         <div className="flex-grow flex items-center justify-center">
             <div className="container mx-auto text-center my-6">
-                <h2 className="text-4xl font-bold mb-1">Play Chess Online</h2>
+                <h2 className="text-4xl font-bold mb-1">Play Chess</h2>
                 <p className="text-xl mb-2">Experience the thrill of chess with our web app.</p>
                 <div className='h-96 w-auto'>
                     <img src={chess} alt="" className='w-full h-full object-contain'/>
@@ -67,7 +67,7 @@ return (
 
         <footer className="bg-gray-800 py-4 px-5">
             <div className="container mx-auto text-center">
-                <p>&copy; 2023 ChessVerse. All rights reserved.</p>
+                <p>&copy; 2024 ChessVerse. All rights reserved.</p>
             </div>
         </footer>
     </div>
