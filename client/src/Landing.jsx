@@ -24,8 +24,6 @@ return (
                 <Link to="/play" className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-md">Get Started</Link>
             </div>
         </div>
-
-        {/* About Chess Section */}
         <div className="bg-gray-800 py-12 px-5">
             <div className="container mx-auto">
                 
@@ -41,8 +39,6 @@ return (
                 </div>
             </div>
         </div>
-
-        {/* Features Section */}
         <div className="bg-gray-800 py-12 px-5 flex flex-between">
             <div className="container mx-auto">
                 <h3 className="text-2xl font-bold mb-6">Features</h3>
