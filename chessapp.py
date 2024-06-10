@@ -1,27 +1,35 @@
 #!/server/venv/bin/python3
 
+# Import necessary modules
 from flask import Flask, jsonify, request
 from chessLogic import ChessGame
 from flask_cors import CORS
 from stockfish import Stockfish
 import time
 
+# Initialize Flask app and CORS
 app = Flask(__name__)
 cors = CORS(app, origins='*')
+
+# Initialize ChessGame
 game = ChessGame()
 
+# Initialize Stockfish and set options
 stockfish = Stockfish(path="/usr/games/stockfish")
 stockfish._set_option('UCI_LimitStrength', 'true')
 stockfish._set_option('UCI_Elo', 1000)
 
+# Route to get the current board state
 @app.route('/board', methods=['GET'])
 def get_board():
     return jsonify({'board': game.get_board(), 'turn': game.get_turn()})
 
+# Route to get the current turn
 @app.route('/turn', methods=['GET'])
 def get_turn():
     return jsonify({'turn': game.get_turn()})
 
+# Route to make a move
 @app.route('/move', methods=['POST'])
 def make_move():
     data = request.json
@@ -34,6 +42,7 @@ def make_move():
     else:
         return jsonify({'error': result}), 400
 
+# Route to get the AI's move
 @app.route('/ai_move', methods=['POST'])
 def get_ai_move():
     #time.sleep(0.5)
@@ -56,19 +65,23 @@ def get_ai_move():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+# Route to get the legal moves
 @app.route('/legal_moves', methods=['GET'])
 def get_legal_moves():
     return jsonify({'legal_moves': game.get_legal_moves()})
 
+# Route to check if the game is over
 @app.route('/is_game_over', methods=['GET'])
 def is_game_over():
     return jsonify({'is_game_over': game.is_game_over()})
 
+# Route to reset the game
 @app.route('/reset', methods=['POST'])
 def reset_game():
     new_board = game.reset_game()
     return jsonify({'board': new_board, 'legal_moves': game.get_legal_moves(), 'turn': game.get_turn()})
 
+# Route to get the moves for a specific square
 @app.route('/get_moves', methods=['POST'])
 def get_moves():
     import chess
@@ -80,5 +93,6 @@ def get_moves():
     moves = game.get_moves(square)
     return jsonify({'moves': moves})
 
+# Run the Flask app
 if __name__ == '__main__':
     app.run(debug=True)

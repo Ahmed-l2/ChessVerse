@@ -28,6 +28,7 @@ body {
   flex-direction: column-reverse;
   width: 600px;
   height: 500px;
+  margin-top: 20px;
   padding-top: 40px;
   padding-bottom: 16px;
   border-radius: 25px;
@@ -171,7 +172,6 @@ body {
 
 .turn {
   position: fixed;
-  left: 12.5em;
   margin-bottom: 10px;
   text-align: center;
   font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
@@ -285,7 +285,6 @@ body {
 }
 
 .chess-board .square {
-  /* Added a new rule targeting the square itself */
   overflow: hidden; /* Hide overflowing content */
 }
 
@@ -294,12 +293,12 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  width: 100%; /* Set width to match square */
-  height: 100%; /* Set height to match square */
+  width: 100%;
+  height: 100%;
 }
 
 .letter {
-  font-size: 10px; /* Adjust font size as needed */
+  font-size: 10px;
   text-align: right;
   margin-left: 68px;
 }
@@ -310,6 +309,6 @@ body {
 }
 
 .number {
-  font-size: 10px; /* Adjust font size as needed */
+  font-size: 10px;
   margin-left: 1.5px;
 }
