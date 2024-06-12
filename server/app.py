@@ -12,14 +12,19 @@ stockfish = Stockfish(path="/usr/games/stockfish")
 stockfish._set_option('UCI_LimitStrength', 'true')
 stockfish._set_option('UCI_Elo', 1000)
 
+# Route to get the current state of the board and the current player's turn
 @app.route('/board', methods=['GET'])
 def get_board():
+    # Return a JSON response with the current board state and whose turn it is
     return jsonify({'board': game.get_board(), 'turn': game.get_turn()})
 
+# Route to get the current player's turn
 @app.route('/turn', methods=['GET'])
 def get_turn():
+    # Return a JSON response with the current player's turn
     return jsonify({'turn': game.get_turn()})
 
+# Route to make a move in the game
 @app.route('/move', methods=['POST'])
 def make_move():
     data = request.json
