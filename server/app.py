@@ -54,25 +54,35 @@ def get_ai_move():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+# Route to get legal moves in the current game state
 @app.route('/legal_moves', methods=['GET'])
 def get_legal_moves():
+    # Return a JSON response with the legal moves
     return jsonify({'legal_moves': game.get_legal_moves()})
 
+# Route to check if the game is over
 @app.route('/is_game_over', methods=['GET'])
 def is_game_over():
+    # Return a JSON response indicating whether the game is over
     return jsonify({'is_game_over': game.is_game_over()})
 
+# Route to reset the game
 @app.route('/reset', methods=['POST'])
 def reset_game():
+    # Reset the game and get the new board state
     new_board = game.reset_game()
+    # Return a JSON response with the new board, legal moves, and current turn
     return jsonify({'board': new_board, 'legal_moves': game.get_legal_moves(), 'turn': game.get_turn()})
 
+# Route to get possible moves from a specific square
 @app.route('/get_moves', methods=['POST'])
 def get_moves():
     import chess
 
     data = request.json
+    # Get the square from the data and convert it to lowercase
     square_str = data.get('square').lower()
+    # Find the index of the square in chess.SQUARE_NAMES
     square = chess.SQUARE_NAMES.index(square_str)
     
     moves = game.get_moves(square)
