@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import useSound from 'use-sound';
 import axios from 'axios';
+import { v4 as uuidv4 } from 'uuid';
 
 // Import SVG images for chess pieces
 import p from './assets/p.svg';
@@ -64,10 +65,16 @@ const ChessGame = (props) => {
     return storedMoveList ? JSON.parse(storedMoveList) : [];
   });
   const [gameOver, setGameover] = useState(false);
+  const [sessionId, setSessionId] = useState(localStorage.getItem('sessionId') || uuidv4());
 
   // Load sound effects
   const [playMove] = useSound(moveSfx);
   const [playNotify] = useSound(notifySfx);
+
+  // Save session ID to localStorage
+  useEffect(() => {
+    localStorage.setItem('sessionId', sessionId);
+  }, [sessionId]);
 
   // Effect to reset the game when AI prop changes
   useEffect(() => {
@@ -78,7 +85,7 @@ const ChessGame = (props) => {
   useEffect(() => {
     fetchBoard();
     fetchLegalMoves();
-  }, []);
+  }, [sessionId]);
 
   // Fetch board and legal moves on turn change
   useEffect(() => {
@@ -88,6 +95,10 @@ const ChessGame = (props) => {
     fetchLegalMoves();
     setPromotion(null);
   }, [turn]);
+
+  useEffect(() => {
+    handleNewGame();
+  }, [props.ai]);
 
   // Load move list from localStorage on mount
   useEffect(() => {
@@ -101,6 +112,15 @@ const ChessGame = (props) => {
   useEffect(() => {
     localStorage.setItem('moveList', JSON.stringify(moveList));
   }, [moveList]);
+
+  const handleNewGame = async () => {
+    try {
+      const response = await axios.post('http://127.0.0.1:5000/new_game');
+      setSessionId(response.data.session_id);
+    } catch (error) {
+      console.error('Error starting new game:', error);
+    }
+  };
 
   // Process move response from the server
   const processMoveResponse = async (response) => {
@@ -124,7 +144,7 @@ const ChessGame = (props) => {
   // Fetch the current board state from the server
   const fetchBoard = async () => {
     try {
-      const response = await axios.get('http://127.0.0.1:5000/board');
+      const response = await axios.get(`http://127.0.0.1:5000/${sessionId}/board`);
       setBoard(convertFenToBoard(response.data.board));
       setTurn(response.data.turn);
     } catch (error) {
@@ -135,7 +155,7 @@ const ChessGame = (props) => {
   // Fetch legal moves from the server
   const fetchLegalMoves = async () => {
     try {
-      const response = await axios.get('http://127.0.0.1:5000/legal_moves');
+      const response = await axios.get(`http://127.0.0.1:5000/${sessionId}/legal_moves`);
       setLegalMoves(response.data.legal_moves);
     } catch (error) {
       console.error('Error fetching legal moves:', error);
@@ -168,11 +188,11 @@ const ChessGame = (props) => {
       }
 
       try {
-        const response = await axios.post('http://127.0.0.1:5000/move', { move });
+        const response = await axios.post(`http://127.0.0.1:5000/${sessionId}/move`, { move });
         await processMoveResponse(response);
     
         if (props.ai) {
-          const aiMoveResponse = await axios.post('http://127.0.0.1:5000/ai_move', { fen: response.data.board });
+          const aiMoveResponse = await axios.post(`http://127.0.0.1:5000/${sessionId}/ai_move`, { fen: response.data.board });
           await processMoveResponse(aiMoveResponse);
         }
         return true;
@@ -225,11 +245,11 @@ const ChessGame = (props) => {
         }
       }
 
-      const response = await axios.post('http://127.0.0.1:5000/move', { move });
+      const response = await axios.post(`http://127.0.0.1:5000/${sessionId}/move`, { move });
       await processMoveResponse(response);
 
       if (props.ai) {
-        const aiMoveResponse = await axios.post('http://127.0.0.1:5000/ai_move', { fen: response.data.board });
+        const aiMoveResponse = await axios.post(`http://127.0.0.1:5000/${sessionId}/ai_move`, { fen: response.data.board });
         await processMoveResponse(aiMoveResponse);
       }
     } catch (error) {
@@ -249,11 +269,11 @@ const ChessGame = (props) => {
       }
 
       try {
-        const response = await axios.post('http://127.0.0.1:5000/move', { move });
+        const response = await axios.post(`http://127.0.0.1:5000/${sessionId}/move`, { move });
         await processMoveResponse(response);
     
         if (props.ai) {
-          const aiMoveResponse = await axios.post('http://127.0.0.1:5000/ai_move', { fen: response.data.board });
+          const aiMoveResponse = await axios.post(`http://127.0.0.1:5000/${sessionId}/ai_move`, { fen: response.data.board });
           await processMoveResponse(aiMoveResponse);
         }
       } catch (error) {
@@ -266,7 +286,7 @@ const ChessGame = (props) => {
   // Reset the game state
   const handleReset = async () => {
     try {
-      const response = await axios.post('http://127.0.0.1:5000/reset');
+      const response = await axios.post(`http://127.0.0.1:5000/${sessionId}/reset`);
       setBoard(convertFenToBoard(response.data.board));
       setLegalMoves(response.data.legal_moves);
       setTurn(response.data.turn);
@@ -282,7 +302,7 @@ const ChessGame = (props) => {
   // Fetch possible moves for a selected square
   const fetchMoves = async (square) => {
     try {
-      const response = await axios.post('http://127.0.0.1:5000/get_moves', { square });
+      const response = await axios.post(`http://127.0.0.1:5000/${sessionId}/get_moves`, { square });
       setSquareMoves(response.data.moves);
     } catch (error) {
       console.error('Error fetching moves:', error);
