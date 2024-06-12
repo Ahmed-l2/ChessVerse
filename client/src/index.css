@@ -51,29 +51,6 @@ body {
   border-radius: 2px;
 }
 
-.game-over-message {
-  color: white;
-}
-
-.promotion-dialog {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 300px;
-  height: 100px;
-}
-
-.promotion-dialog img {
-  height: 70px;
-  cursor: pointer;
-}
-
-.close-promotion-dialog {
-  font-size: 45px;
-  cursor: pointer;
-  color: white;
-}
-
 .dark {
   background-color: #869AA5;
 }
@@ -95,16 +72,16 @@ body {
   width: 300px;
   height: 705px;
   max-height: 705px;
-  border: 2px solid #0c0c0c;
   border-radius: 9px;
   margin-top: 30px;
   padding: 10px;
-  background-color: rgb(61, 43, 25);
-  color: white;
+  background-color: #F9FAFB;
+  color: rgb(56, 55, 55);
   font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
   overflow-y: auto;
   box-sizing: border-box;
   bottom: 0;
+  box-shadow: 2px 2px grey;
 }
 
 
@@ -112,6 +89,7 @@ body {
   text-align: center;
   position: sticky;
   top: 0;
+  font-size: 20px;
 }
 
 .move-list li {
@@ -186,7 +164,6 @@ body {
   height: 60px;
   margin-top: 20px;
 }
-
 
 .game-over-prompt {
   position: absolute;
@@ -278,9 +255,23 @@ body {
   background-color: rgba(249, 250, 251, 1);
   color: rgba(107, 114, 128, 1);
   transition: all .15s ease;
+  box-shadow: 2px 2px grey;
 }
 
 .mark-as-read:hover {
+  background-color: rgb(230, 231, 233);
+}
+
+.menu {
+  margin-top: 0.5rem;
+  background-color: rgba(249, 250, 251, 1);
+  color: rgba(107, 114, 128, 1);
+  border-radius: 5px;
+  width: 150px;
+  box-shadow: 2px 2px grey;
+}
+
+.menu:hover {
   background-color: rgb(230, 231, 233);
 }
 
@@ -311,4 +302,41 @@ body {
 .number {
   font-size: 10px;
   margin-left: 1.5px;
+}
+
+.promo-card {
+  background-color: hsl(0, 0%, 100%);
+  width: 400px;
+  height: auto;
+  text-align: center;
+  padding: 15px;
+  border-radius: 17px;
+  box-shadow: 2px 2px 15px rgb(218, 213, 213);
+  border: 2px solid #869AA5;
+  position: absolute;
+  top: 44.5%;
+  left: 31.2%;
+  box-shadow: 2px 2px grey;
+}
+
+.promo-card h1 {
+  color: hsl(218, 44%, 22%);
+  font-weight: 700;
+  font-size: 20px;
+}
+
+.avatar {
+  display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.avatar img {
+  width: 20%;
+  height: auto;
+}
+
+.avatar img:hover {
+  background-color: #04AA6D;
+  border-radius: 5px;
+  cursor: pointer;
 }
