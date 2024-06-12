@@ -38,7 +38,7 @@ def make_move():
     print(type(data))
     success, result = game.make_move(move)  # Attempt to make the move
     if success:
-        return jsonify({'board': result, 'legal_moves': game.get_legal_moves(), 'game_over': game.is_game_over()})
+        return jsonify({'board': result, 'move': move,'legal_moves': game.get_legal_moves(), 'game_over': game.is_game_over()})
     else:
         return jsonify({'error': result}), 400  # Return error if move is invalid
 

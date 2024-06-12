@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import useSound from 'use-sound';
 import axios from 'axios';
 
-// Import SVG images
+// Import SVG images for chess pieces
 import p from './assets/p.svg';
 import P from './assets/P.svg';
 import r from './assets/r.svg';
@@ -16,27 +16,30 @@ import Q from './assets/Q.svg';
 import k from './assets/k.svg';
 import K from './assets/K.svg';
 
-// Import Sound effects
-import moveSfx from './assets/move.mp3'
-import notifySfx from './assets/notify.mp3'
+// Import sound effects
+import moveSfx from './assets/move.mp3';
+import notifySfx from './assets/notify.mp3';
 
+// Map piece identifiers to their corresponding images
 const pieceImages = { p, P, r, R, n, N, b, B, q, Q, k, K };
 
+// Define board letters and numbers for coordinates
 const letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 const numbers = ['8', '7', '6', '5', '4', '3', '2', '1'];
 
-const compareStr = (str1, str2) =>{
+// Function to compare two strings for matching characters
+const compareStr = (str1, str2) => {
   let map = {};
-  for(let char of str2) {
-      if(!map[char]) {
+  for (let char of str2) {
+      if (!map[char]) {
           map[char] = 1;
       } else {
           map[char]++;
       }
   }
 
-  for(let char of str1) {
-      if(!map[char]) {
+  for (let char of str1) {
+      if (!map[char]) {
           return false;
       } else {
           map[char]--;
@@ -47,6 +50,7 @@ const compareStr = (str1, str2) =>{
 };
 
 const ChessGame = (props) => {
+  // State variables
   const [board, setBoard] = useState([]);
   const [legalMoves, setLegalMoves] = useState([]);
   const [error, setError] = useState('');
@@ -61,18 +65,22 @@ const ChessGame = (props) => {
   });
   const [gameOver, setGameover] = useState(false);
 
+  // Load sound effects
   const [playMove] = useSound(moveSfx);
   const [playNotify] = useSound(notifySfx);
 
+  // Effect to reset the game when AI prop changes
   useEffect(() => {
     handleReset();
   }, [props.ai]);
 
+  // Initial fetch of board and legal moves
   useEffect(() => {
     fetchBoard();
     fetchLegalMoves();
   }, []);
 
+  // Fetch board and legal moves on turn change
   useEffect(() => {
     setSelectedSquare(null);
     setSquareMoves([]);
@@ -81,6 +89,7 @@ const ChessGame = (props) => {
     setPromotion(null);
   }, [turn]);
 
+  // Load move list from localStorage on mount
   useEffect(() => {
     const storedMoveList = localStorage.getItem('moveList');
     if (storedMoveList) {
@@ -88,78 +97,12 @@ const ChessGame = (props) => {
     }
   }, []);
 
+  // Save move list to localStorage on update
   useEffect(() => {
     localStorage.setItem('moveList', JSON.stringify(moveList));
   }, [moveList]);
-  
 
-
-  const fetchBoard = async () => {
-    try {
-      const response = await axios.get('https://chess.ahmed-codes.tech/api/board');
-      setBoard(convertFenToBoard(response.data.board));
-      setTurn(response.data.turn);
-    } catch (error) {
-      console.error('Error fetching board:', error);
-    }
-  };
-
-  const fetchLegalMoves = async () => {
-    try {
-      const response = await axios.get('https://chess.ahmed-codes.tech/api/legal_moves');
-      setLegalMoves(response.data.legal_moves);
-    } catch (error) {
-      console.error('Error fetching legal moves:', error);
-    }
-  };
-
-  const handleDuplicate = async (dest) => {
-    if (currentPiece == 'p' || currentPiece == 'P') {
-      dest = 'x' + dest;
-    }
-    console.log('entered dup');
-    console.log(dest);
-    let count = 0;
-      for (let n = 0; n < legalMoves.length; n++) {
-        if (compareStr(dest, legalMoves[n])) {
-          count++;
-        }
-      }
-
-      console.log(count);
-
-      if (count > 0) {
-        console.log('entered dup2');
-        const curSquare = convertToSAN(selectedSquare['row'], selectedSquare['col']);
-        let temp = curSquare[0] + dest;
-        let move = '';
-        for (let n = 0; n < legalMoves.length; n++) {
-          if (compareStr(temp, legalMoves[n])) {
-            move = legalMoves[n];
-          }
-        }
-        if(!move) {
-          return false;
-        }
-        console.log(`dup = ${move}`);
-
-        try {
-          const response = await axios.post('https://chess.ahmed-codes.tech/api/move', { move });
-          await processMoveResponse(response);
-      
-          if (props.ai) {
-            const aiMoveResponse = await axios.post('https://chess.ahmed-codes.tech/api/ai_move', { fen: response.data.board });
-            await processMoveResponse(aiMoveResponse);
-          }
-          return true;
-        } catch (error) {
-          console.error('Error making move:', error);
-          setError('Invalid move');
-        }
-      }
-      return false;
-  }
-
+  // Process move response from the server
   const processMoveResponse = async (response) => {
     if (response.data.error) {
       setError(response.data.error);
@@ -170,7 +113,6 @@ const ChessGame = (props) => {
       setMovelist(prevMoveList => [...prevMoveList, response.data.move]);
       setError('');
       setGameover(response.data.game_over);
-      console.log(response.data.game_over);
       playMove();
       if (gameOver) {
         playNotify();
@@ -178,26 +120,86 @@ const ChessGame = (props) => {
       }
     }
   };
-  
+
+  // Fetch the current board state from the server
+  const fetchBoard = async () => {
+    try {
+      const response = await axios.get('http://127.0.0.1:5000/board');
+      setBoard(convertFenToBoard(response.data.board));
+      setTurn(response.data.turn);
+    } catch (error) {
+      console.error('Error fetching board:', error);
+    }
+  };
+
+  // Fetch legal moves from the server
+  const fetchLegalMoves = async () => {
+    try {
+      const response = await axios.get('http://127.0.0.1:5000/legal_moves');
+      setLegalMoves(response.data.legal_moves);
+    } catch (error) {
+      console.error('Error fetching legal moves:', error);
+    }
+  };
+
+  // Handle potential duplicate moves
+  const handleDuplicate = async (dest) => {
+    if (currentPiece === 'p' || currentPiece === 'P') {
+      dest = 'x' + dest;
+    }
+    let count = 0;
+    for (let n = 0; n < legalMoves.length; n++) {
+      if (compareStr(dest, legalMoves[n])) {
+        count++;
+      }
+    }
+
+    if (count > 0) {
+      const curSquare = convertToSAN(selectedSquare.row, selectedSquare.col);
+      let temp = curSquare[0] + dest;
+      let move = '';
+      for (let n = 0; n < legalMoves.length; n++) {
+        if (compareStr(temp, legalMoves[n])) {
+          move = legalMoves[n];
+        }
+      }
+      if (!move) {
+        return false;
+      }
+
+      try {
+        const response = await axios.post('http://127.0.0.1:5000/move', { move });
+        await processMoveResponse(response);
+    
+        if (props.ai) {
+          const aiMoveResponse = await axios.post('http://127.0.0.1:5000/ai_move', { fen: response.data.board });
+          await processMoveResponse(aiMoveResponse);
+        }
+        return true;
+      } catch (error) {
+        console.error('Error making move:', error);
+        setError('Invalid move');
+      }
+    }
+    return false;
+  };
+
+  // Handle piece move action
   const handlePieceMove = async (row, col) => {
     try {
       const square = convertToSAN(row, col);
       let move = '';
-      console.log(`Trying to move ${currentPiece} to ${square} (${row}, ${col})`);
-      console.log(`Row: ${row}, CurrentPiece: ${currentPiece}`);
+
+      // Check for pawn promotion
       if ((currentPiece === 'P' && row === 0) || (currentPiece === 'p' && row === 7)) {
-        console.log('Pawn promotion condition met');
-        console.log(`promo= ${currentPiece + square}`);
         setPromotion(square);
         return; // Stop further execution to wait for promotion choice
       }
-  
+
       if (await handleDuplicate(square)) {
         return true;
       }
-  
-      console.log('not duplicate');
-  
+
       if (currentPiece !== 'P' && currentPiece !== 'p') {
         let temp = currentPiece.toUpperCase() + square;
         for (let j = 0; j < legalMoves.length; j++) {
@@ -212,7 +214,7 @@ const ChessGame = (props) => {
           }
         }
       }
-  
+
       // Check if the move is a castling move
       if ((currentPiece === 'k' || currentPiece === 'K') && (square === 'h1' || square === 'a1' || square === 'h8' || square === 'a8')) {
         if ((square === 'h1' || square === 'h8') && legalMoves.includes('O-O')) {
@@ -222,12 +224,12 @@ const ChessGame = (props) => {
           move = 'O-O-O';
         }
       }
-  
-      const response = await axios.post('https://chess.ahmed-codes.tech/api/move', { move });
+
+      const response = await axios.post('http://127.0.0.1:5000/move', { move });
       await processMoveResponse(response);
-  
+
       if (props.ai) {
-        const aiMoveResponse = await axios.post('https://chess.ahmed-codes.tech/api/ai_move', { fen: response.data.board });
+        const aiMoveResponse = await axios.post('http://127.0.0.1:5000/ai_move', { fen: response.data.board });
         await processMoveResponse(aiMoveResponse);
       }
     } catch (error) {
@@ -236,22 +238,22 @@ const ChessGame = (props) => {
     }
   };
 
+  // Handle promotion piece selection
   const handlePromotionChoice = async (choice) => {
     if (promotion) {
       let move = '';
-      console.log(`choice: ${promotion + choice.toUpperCase()}`)
       for (let x = 0; x < legalMoves.length; x++) {
         if (compareStr((promotion + choice.toUpperCase()), legalMoves[x])) {
           move = legalMoves[x];
         }
       }
-  
+
       try {
-        const response = await axios.post('https://chess.ahmed-codes.tech/api/move', { move });
+        const response = await axios.post('http://127.0.0.1:5000/move', { move });
         await processMoveResponse(response);
     
         if (props.ai) {
-          const aiMoveResponse = await axios.post('https://chess.ahmed-codes.tech/api/ai_move', { fen: response.data.board });
+          const aiMoveResponse = await axios.post('http://127.0.0.1:5000/ai_move', { fen: response.data.board });
           await processMoveResponse(aiMoveResponse);
         }
       } catch (error) {
@@ -260,10 +262,11 @@ const ChessGame = (props) => {
       }
     }
   };
-  
+
+  // Reset the game state
   const handleReset = async () => {
     try {
-      const response = await axios.post('https://chess.ahmed-codes.tech/api/reset');
+      const response = await axios.post('http://127.0.0.1:5000/reset');
       setBoard(convertFenToBoard(response.data.board));
       setLegalMoves(response.data.legal_moves);
       setTurn(response.data.turn);
@@ -276,16 +279,17 @@ const ChessGame = (props) => {
     }
   };
 
+  // Fetch possible moves for a selected square
   const fetchMoves = async (square) => {
     try {
-      const response = await axios.post('https://chess.ahmed-codes.tech/api/get_moves', { square });
-      console.log(`Fetched moves for ${square}:`, response.data.moves); // Debugging line
+      const response = await axios.post('http://127.0.0.1:5000/get_moves', { square });
       setSquareMoves(response.data.moves);
     } catch (error) {
       console.error('Error fetching moves:', error);
     }
   };
-  
+
+  // Convert FEN string to board array
   const convertFenToBoard = (fen) => {
     const rows = fen.split(' ')[0].split('/');
     return rows.map(row => {
@@ -303,10 +307,12 @@ const ChessGame = (props) => {
     });
   };
 
+  // Convert row and column indices to SAN (Standard Algebraic Notation)
   const convertToSAN = (rowIndex, colIndex) => {
     return letters[colIndex] + numbers[rowIndex];
   };
 
+  // Handle click on a square
   const handleSquareClick = (row, col, piece) => {
     let pieceColor = null;
     if (piece && piece.toUpperCase() === piece) {
@@ -314,7 +320,7 @@ const ChessGame = (props) => {
     } else if (!props.ai && (piece && piece.toLowerCase() === piece)) {
       pieceColor = 'black';
     }
-  
+
     if (selectedSquare && selectedSquare.row === row && selectedSquare.col === col) {
       setSelectedSquare(null);
       setSquareMoves([]);
@@ -322,17 +328,18 @@ const ChessGame = (props) => {
       setPromotion(null);
     } else if (pieceColor === turn) {
       const square = convertToSAN(row, col);
-      console.log(`Selected Square: ${square}`); // Debugging line
       fetchMoves(square);
       setSelectedSquare({ row, col });
       setCurrentPiece(piece);
     }
   };
-  
+
+  // Check if a square is selected
   const isSquareSelected = (row, col) => {
     return selectedSquare && selectedSquare.row === row && selectedSquare.col === col;
   };
 
+  // Check if a square is a legal move destination
   const isMoveSquare = (row, col) => {
     const square = convertToSAN(row, col);
     if (currentPiece === 'k' && (square === 'h8' || square === 'a8')) {
@@ -357,7 +364,7 @@ const ChessGame = (props) => {
     };
     return false;
   };
-  
+
   return (
     <div className="chess-app">
       <br></br>
