@@ -1,0 +1,57 @@
+body {
+    background-color: hsl(212, 45%, 89%);
+    font-family: 'Outfit', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.promo-card {
+    background-color: hsl(0, 0%, 100%);
+    width: 400px;
+    height: auto;
+    text-align: center;
+    padding: 15px;
+    border-radius: 17px;
+    box-shadow: 2px 2px 15px rgb(218, 213, 213);
+    border: 2px solid #869AA5;
+}
+
+.promo-card h1 {
+    color: hsl(218, 44%, 22%);
+    font-weight: 700; /* Normal weight */
+    font-size: 20px;
+}
+
+.choices {
+    color: hsl(220, 15%, 55%);
+    font-weight: 700; /* Bold weight */
+    font-size: 10px;
+}
+
+.promo-choice {
+    margin: 2px;
+    border-radius: 5px;
+    padding: 10px 10px 10px;
+    color: black;
+    border: 2px solid #04AA6D;
+    display: inline;
+}
+
+.promo-choice:hover {
+    background-color: #04AA6D;
+    cursor: pointer;
+}
+
+.avatar img {
+    width: 20%;
+    height: auto;
+}
+
+.avatar img:hover {
+    background-color: #04AA6D;
+    border-radius: 5px;
+    cursor: pointer;
+  }

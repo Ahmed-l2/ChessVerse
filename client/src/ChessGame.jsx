@@ -78,6 +78,7 @@ const ChessGame = (props) => {
     setSquareMoves([]);
     fetchBoard();
     fetchLegalMoves();
+    setPromotion(null);
   }, [turn]);
 
   useEffect(() => {
@@ -95,7 +96,7 @@ const ChessGame = (props) => {
 
   const fetchBoard = async () => {
     try {
-      const response = await axios.get('https://13.60.66.110/board');
+      const response = await axios.get('https://chess.ahmed-codes.tech/api/board');
       setBoard(convertFenToBoard(response.data.board));
       setTurn(response.data.turn);
     } catch (error) {
@@ -105,27 +106,10 @@ const ChessGame = (props) => {
 
   const fetchLegalMoves = async () => {
     try {
-      const response = await axios.get('https://13.60.66.110/legal_moves');
+      const response = await axios.get('https://chess.ahmed-codes.tech/api/legal_moves');
       setLegalMoves(response.data.legal_moves);
     } catch (error) {
       console.error('Error fetching legal moves:', error);
-    }
-  };
-
-  const handleMove = async (move) => {
-    try {
-      const response = await axios.post('https://13.60.66.110/move', { move });
-      if (response.data.error) {
-        setError(response.data.error);
-      } else {
-        setBoard(convertFenToBoard(response.data.board));
-        setLegalMoves(response.data.legal_moves);
-        setTurn(response.data.turn);
-        setError('');
-      }
-    } catch (error) {
-      console.error('Error making move:', error);
-      setError('Invalid move');
     }
   };
 
@@ -160,44 +144,14 @@ const ChessGame = (props) => {
         console.log(`dup = ${move}`);
 
         try {
-          const response = await axios.post('https://13.60.66.110/move', { move });
-          if (response.data.error) {
-            setError(response.data.error);
-          } else {
-            setBoard(convertFenToBoard(response.data.board));
-            setLegalMoves(response.data.legal_moves);
-            setTurn(response.data.turn);
-            setError('');
-            setPromotion(null); // Clear promotion state
-            setMovelist(prevMoveList => [...prevMoveList, move]);
-            setGameover(response.data.game_over);
-            console.log(response.data.game_over);
-            playMove();
-            if (gameOver) {
-              playNotify();
-              return;
-            }
-
-            if (props.ai) {
-              const aiMoveResponse = await axios.post('https://13.60.66.110/ai_move', { fen: response.data.board });
-              if (aiMoveResponse.data.error) {
-                setError(aiMoveResponse.data.error);
-              } else {
-                setBoard(convertFenToBoard(aiMoveResponse.data.board));
-                setLegalMoves(aiMoveResponse.data.legal_moves);
-                setTurn(aiMoveResponse.data.turn);
-                setMovelist(prevMoveList => [...prevMoveList, aiMoveResponse.data.move]);
-                setGameover(aiMoveResponse.data.game_over);
-                console.log(aiMoveResponse.data.game_over);
-                playMove();
-                if (gameOver) {
-                  playNotify();
-                  return;
-                }
-              }
-            }
-            return true;
+          const response = await axios.post('https://chess.ahmed-codes.tech/api/move', { move });
+          await processMoveResponse(response);
+      
+          if (props.ai) {
+            const aiMoveResponse = await axios.post('https://chess.ahmed-codes.tech/api/ai_move', { fen: response.data.board });
+            await processMoveResponse(aiMoveResponse);
           }
+          return true;
         } catch (error) {
           console.error('Error making move:', error);
           setError('Invalid move');
@@ -206,6 +160,25 @@ const ChessGame = (props) => {
       return false;
   }
 
+  const processMoveResponse = async (response) => {
+    if (response.data.error) {
+      setError(response.data.error);
+    } else {
+      setBoard(convertFenToBoard(response.data.board));
+      setLegalMoves(response.data.legal_moves);
+      setTurn(response.data.turn);
+      setMovelist(prevMoveList => [...prevMoveList, response.data.move]);
+      setError('');
+      setGameover(response.data.game_over);
+      console.log(response.data.game_over);
+      playMove();
+      if (gameOver) {
+        playNotify();
+        return;
+      }
+    }
+  };
+  
   const handlePieceMove = async (row, col) => {
     try {
       const square = convertToSAN(row, col);
@@ -214,19 +187,17 @@ const ChessGame = (props) => {
       console.log(`Row: ${row}, CurrentPiece: ${currentPiece}`);
       if ((currentPiece === 'P' && row === 0) || (currentPiece === 'p' && row === 7)) {
         console.log('Pawn promotion condition met');
-        //const promo = compareStr((currentPiece + square), legalMoves)
-        console.log(`promo= ${currentPiece + square}`)
+        console.log(`promo= ${currentPiece + square}`);
         setPromotion(square);
         return; // Stop further execution to wait for promotion choice
       }
-
-      //let dest = 'x' + square;
+  
       if (await handleDuplicate(square)) {
         return true;
-      };
-
+      }
+  
       console.log('not duplicate');
-
+  
       if (currentPiece !== 'P' && currentPiece !== 'p') {
         let temp = currentPiece.toUpperCase() + square;
         for (let j = 0; j < legalMoves.length; j++) {
@@ -238,12 +209,8 @@ const ChessGame = (props) => {
         for (let x = 0; x < legalMoves.length; x++) {
           if (compareStr(square, legalMoves[x])) {
             move = legalMoves[x];
-          };
-        };
-      };
-
-      if ((currentPiece === 'P' && row === 7) || (currentPiece === 'p' && row === 0)) {
-        
+          }
+        }
       }
   
       // Check if the move is a castling move
@@ -256,41 +223,12 @@ const ChessGame = (props) => {
         }
       }
   
-      const response = await axios.post('https://13.60.66.110/move', { move });
-      if (response.data.error) {
-        setError(response.data.error);
-      } else {
-        setBoard(convertFenToBoard(response.data.board));
-        setLegalMoves(response.data.legal_moves);
-        setTurn(response.data.turn);
-        setMovelist(prevMoveList => [...prevMoveList, move]);
-        setError('');
-        setGameover(response.data.game_over);
-        console.log(response.data.game_over);
-        playMove();
-        if (gameOver) {
-          playNotify();
-          return;
-        }
-        
-        if (props.ai) {
-          const aiMoveResponse = await axios.post('https://13.60.66.110/ai_move', { fen: response.data.board });
-          if (aiMoveResponse.data.error) {
-            setError(aiMoveResponse.data.error);
-          } else {
-            setBoard(convertFenToBoard(aiMoveResponse.data.board));
-            setLegalMoves(aiMoveResponse.data.legal_moves);
-            setTurn(aiMoveResponse.data.turn);
-            setMovelist(prevMoveList => [...prevMoveList, aiMoveResponse.data.move]);
-            setGameover(aiMoveResponse.data.game_over);
-            console.log(aiMoveResponse.data.game_over);
-            playMove();
-            if (gameOver) {
-              playNotify();
-              return;
-            }
-          }
-        }
+      const response = await axios.post('https://chess.ahmed-codes.tech/api/move', { move });
+      await processMoveResponse(response);
+  
+      if (props.ai) {
+        const aiMoveResponse = await axios.post('https://chess.ahmed-codes.tech/api/ai_move', { fen: response.data.board });
+        await processMoveResponse(aiMoveResponse);
       }
     } catch (error) {
       console.error('Error making move:', error);
@@ -309,40 +247,12 @@ const ChessGame = (props) => {
       }
   
       try {
-        const response = await axios.post('https://13.60.66.110/move', { move });
-        if (response.data.error) {
-          setError(response.data.error);
-        } else {
-          setBoard(convertFenToBoard(response.data.board));
-          setLegalMoves(response.data.legal_moves);
-          setTurn(response.data.turn);
-          setError('');
-          setMovelist(prevMoveList => [...prevMoveList, move]);
-          setPromotion(null); // Clear promotion state
-          playMove();
-          if (gameOver) {
-            playNotify();
-            return;
-          }
-
-          if (props.ai) {
-            const aiMoveResponse = await axios.post('https://13.60.66.110/ai_move', { fen: response.data.board });
-            if (aiMoveResponse.data.error) {
-              setError(aiMoveResponse.data.error);
-            } else {
-              setBoard(convertFenToBoard(aiMoveResponse.data.board));
-              setLegalMoves(aiMoveResponse.data.legal_moves);
-              setTurn(aiMoveResponse.data.turn);
-              setMovelist(prevMoveList => [...prevMoveList, aiMoveResponse.data.move]);
-              setGameover(aiMoveResponse.data.game_over);
-              console.log(aiMoveResponse.data.game_over);
-              playMove();
-              if (gameOver) {
-                playNotify();
-                return;
-              }
-            }
-          }
+        const response = await axios.post('https://chess.ahmed-codes.tech/api/move', { move });
+        await processMoveResponse(response);
+    
+        if (props.ai) {
+          const aiMoveResponse = await axios.post('https://chess.ahmed-codes.tech/api/ai_move', { fen: response.data.board });
+          await processMoveResponse(aiMoveResponse);
         }
       } catch (error) {
         console.error('Error making move:', error);
@@ -353,7 +263,7 @@ const ChessGame = (props) => {
   
   const handleReset = async () => {
     try {
-      const response = await axios.post('https://13.60.66.110/reset');
+      const response = await axios.post('https://chess.ahmed-codes.tech/api/reset');
       setBoard(convertFenToBoard(response.data.board));
       setLegalMoves(response.data.legal_moves);
       setTurn(response.data.turn);
@@ -368,7 +278,7 @@ const ChessGame = (props) => {
 
   const fetchMoves = async (square) => {
     try {
-      const response = await axios.post('https://13.60.66.110/get_moves', { square });
+      const response = await axios.post('https://chess.ahmed-codes.tech/api/get_moves', { square });
       console.log(`Fetched moves for ${square}:`, response.data.moves); // Debugging line
       setSquareMoves(response.data.moves);
     } catch (error) {
@@ -450,7 +360,7 @@ const ChessGame = (props) => {
   
   return (
     <div className="chess-app">
-      <>.</>
+      <br></br>
       {error && <p style={{ color: 'red' }}>{error}</p>}
       {gameOver && (
         <div className={`game-over-prompt ${gameOver ? 'show' : ''}`}>
@@ -500,21 +410,15 @@ const ChessGame = (props) => {
           <button className="mark-as-read" onClick={() => setGameover(true)}>RESIGN</button>
         </div>
       </div>
-      {/*<div>
-        <h1>Legal Moves</h1>
-        {legalMoves.map((move, index) => (
-          <button key={index} onClick={() => handleMove(move)}>
-            {move}
-          </button>
-        ))}
-      </div>*/}
       {promotion && (
-        <div className="promotion-choice">
-          <p>Choose promotion piece:</p>
-          <button onClick={() => handlePromotionChoice('q')}>Queen</button>
-          <button onClick={() => handlePromotionChoice('r')}>Rook</button>
-          <button onClick={() => handlePromotionChoice('b')}>Bishop</button>
-          <button onClick={() => handlePromotionChoice('n')}>Knight</button>
+        <div className="promo-card">
+          <h1>CHOOSE PROMOTION PIECE</h1>
+          <div className="avatar">
+            <img src={pieceImages['Q']} alt="queen" onClick={() => handlePromotionChoice('q')}/>
+            <img src={pieceImages['R']} alt="rook" onClick={() => handlePromotionChoice('r')}/>
+            <img src={pieceImages['B']} alt="bishop" onClick={() => handlePromotionChoice('b')}/>
+            <img src={pieceImages['N']} alt="Knight" onClick={() => handlePromotionChoice('n')}/>
+          </div>
         </div>
       )}
     </div>

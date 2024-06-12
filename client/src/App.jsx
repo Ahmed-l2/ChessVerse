@@ -31,7 +31,10 @@ function App() {
           </div>
         </div>
       ) : (
-        <ChessGame ai={playAgainstAI}/>
+        <>
+          <button className="menu" onClick={() => setShowCard(true)}>MAIN MENU</button>
+          <ChessGame ai={playAgainstAI}/>
+        </>
       )}
     </>
   );
