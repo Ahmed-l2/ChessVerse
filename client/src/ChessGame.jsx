@@ -115,7 +115,7 @@ const ChessGame = (props) => {
 
   const handleNewGame = async () => {
     try {
-      const response = await axios.post('http://127.0.0.1:5000/new_game');
+      const response = await axios.post('https://chess.ahmed-codes.tech/api/new_game');
       setSessionId(response.data.session_id);
     } catch (error) {
       console.error('Error starting new game:', error);
@@ -144,7 +144,7 @@ const ChessGame = (props) => {
   // Fetch the current board state from the server
   const fetchBoard = async () => {
     try {
-      const response = await axios.get(`http://127.0.0.1:5000/${sessionId}/board`);
+      const response = await axios.get(`https://chess.ahmed-codes.tech/api/${sessionId}/board`);
       setBoard(convertFenToBoard(response.data.board));
       setTurn(response.data.turn);
     } catch (error) {
@@ -155,7 +155,7 @@ const ChessGame = (props) => {
   // Fetch legal moves from the server
   const fetchLegalMoves = async () => {
     try {
-      const response = await axios.get(`http://127.0.0.1:5000/${sessionId}/legal_moves`);
+      const response = await axios.get(`https://chess.ahmed-codes.tech/api/${sessionId}/legal_moves`);
       setLegalMoves(response.data.legal_moves);
     } catch (error) {
       console.error('Error fetching legal moves:', error);
@@ -188,11 +188,11 @@ const ChessGame = (props) => {
       }
 
       try {
-        const response = await axios.post(`http://127.0.0.1:5000/${sessionId}/move`, { move });
+        const response = await axios.post(`https://chess.ahmed-codes.tech/api/${sessionId}/move`, { move });
         await processMoveResponse(response);
     
         if (props.ai) {
-          const aiMoveResponse = await axios.post(`http://127.0.0.1:5000/${sessionId}/ai_move`, { fen: response.data.board });
+          const aiMoveResponse = await axios.post(`https://chess.ahmed-codes.tech/api/${sessionId}/ai_move`, { fen: response.data.board });
           await processMoveResponse(aiMoveResponse);
         }
         return true;
@@ -245,11 +245,11 @@ const ChessGame = (props) => {
         }
       }
 
-      const response = await axios.post(`http://127.0.0.1:5000/${sessionId}/move`, { move });
+      const response = await axios.post(`https://chess.ahmed-codes.tech/api/${sessionId}/move`, { move });
       await processMoveResponse(response);
 
       if (props.ai) {
-        const aiMoveResponse = await axios.post(`http://127.0.0.1:5000/${sessionId}/ai_move`, { fen: response.data.board });
+        const aiMoveResponse = await axios.post(`https://chess.ahmed-codes.tech/api/${sessionId}/ai_move`, { fen: response.data.board });
         await processMoveResponse(aiMoveResponse);
       }
     } catch (error) {
@@ -269,11 +269,11 @@ const ChessGame = (props) => {
       }
 
       try {
-        const response = await axios.post(`http://127.0.0.1:5000/${sessionId}/move`, { move });
+        const response = await axios.post(`https://chess.ahmed-codes.tech/api/${sessionId}/move`, { move });
         await processMoveResponse(response);
     
         if (props.ai) {
-          const aiMoveResponse = await axios.post(`http://127.0.0.1:5000/${sessionId}/ai_move`, { fen: response.data.board });
+          const aiMoveResponse = await axios.post(`https://chess.ahmed-codes.tech/api/${sessionId}/ai_move`, { fen: response.data.board });
           await processMoveResponse(aiMoveResponse);
         }
       } catch (error) {
@@ -286,7 +286,7 @@ const ChessGame = (props) => {
   // Reset the game state
   const handleReset = async () => {
     try {
-      const response = await axios.post(`http://127.0.0.1:5000/${sessionId}/reset`);
+      const response = await axios.post(`https://chess.ahmed-codes.tech/api/${sessionId}/reset`);
       setBoard(convertFenToBoard(response.data.board));
       setLegalMoves(response.data.legal_moves);
       setTurn(response.data.turn);
@@ -302,7 +302,7 @@ const ChessGame = (props) => {
   // Fetch possible moves for a selected square
   const fetchMoves = async (square) => {
     try {
-      const response = await axios.post(`http://127.0.0.1:5000/${sessionId}/get_moves`, { square });
+      const response = await axios.post(`https://chess.ahmed-codes.tech/api/${sessionId}/get_moves`, { square });
       setSquareMoves(response.data.moves);
     } catch (error) {
       console.error('Error fetching moves:', error);
