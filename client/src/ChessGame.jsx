@@ -50,7 +50,7 @@ const compareStr = (str1, str2) => {
   return true;
 };
 
-const ChessGame = (props) => {
+const ChessGame = ({ ai, sessionId }) => {
   // State variables
   const [board, setBoard] = useState([]);
   const [legalMoves, setLegalMoves] = useState([]);
@@ -65,7 +65,6 @@ const ChessGame = (props) => {
     return storedMoveList ? JSON.parse(storedMoveList) : [];
   });
   const [gameOver, setGameover] = useState(false);
-  const [sessionId, setSessionId] = useState(localStorage.getItem('sessionId') || uuidv4());
 
   // Load sound effects
   const [playMove] = useSound(moveSfx);
@@ -79,7 +78,7 @@ const ChessGame = (props) => {
   // Effect to reset the game when AI prop changes
   useEffect(() => {
     handleReset();
-  }, [props.ai]);
+  }, [ai]);
 
   // Initial fetch of board and legal moves
   useEffect(() => {
@@ -95,10 +94,6 @@ const ChessGame = (props) => {
     fetchLegalMoves();
     setPromotion(null);
   }, [turn]);
-
-  useEffect(() => {
-    handleNewGame();
-  }, [props.ai]);
 
   // Load move list from localStorage on mount
   useEffect(() => {
@@ -191,7 +186,7 @@ const ChessGame = (props) => {
         const response = await axios.post(`https://chess.ahmed-codes.tech/api/${sessionId}/move`, { move });
         await processMoveResponse(response);
     
-        if (props.ai) {
+        if (ai) {
           const aiMoveResponse = await axios.post(`https://chess.ahmed-codes.tech/api/${sessionId}/ai_move`, { fen: response.data.board });
           await processMoveResponse(aiMoveResponse);
         }
@@ -248,7 +243,7 @@ const ChessGame = (props) => {
       const response = await axios.post(`https://chess.ahmed-codes.tech/api/${sessionId}/move`, { move });
       await processMoveResponse(response);
 
-      if (props.ai) {
+      if (ai) {
         const aiMoveResponse = await axios.post(`https://chess.ahmed-codes.tech/api/${sessionId}/ai_move`, { fen: response.data.board });
         await processMoveResponse(aiMoveResponse);
       }
@@ -272,7 +267,7 @@ const ChessGame = (props) => {
         const response = await axios.post(`https://chess.ahmed-codes.tech/api/${sessionId}/move`, { move });
         await processMoveResponse(response);
     
-        if (props.ai) {
+        if (ai) {
           const aiMoveResponse = await axios.post(`https://chess.ahmed-codes.tech/api/${sessionId}/ai_move`, { fen: response.data.board });
           await processMoveResponse(aiMoveResponse);
         }
@@ -337,7 +332,7 @@ const ChessGame = (props) => {
     let pieceColor = null;
     if (piece && piece.toUpperCase() === piece) {
       pieceColor = 'white';
-    } else if (!props.ai && (piece && piece.toLowerCase() === piece)) {
+    } else if (!ai && (piece && piece.toLowerCase() === piece)) {
       pieceColor = 'black';
     }
 
